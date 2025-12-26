@@ -1,3 +1,15 @@
 spring:
   application:
     name: pizzza-management-app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+    password: ${POSTGRES_PASSWORD}
+    username: ${POSTGRES_USER}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate.hibernate.format_sql: true
