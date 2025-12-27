@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 import shengov.bg.pizzza_management_app.ingredient.model.Ingredient;
 
 @Repository
-public interface IngredientRepository extends JpaRepository<Ingredient, UUID> {}
+public interface IngredientRepository extends JpaRepository<Ingredient, UUID> {
+
+  boolean existsByNameIgnoreCase(String name);
+}
