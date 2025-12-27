@@ -1,6 +1,6 @@
 package shengov.bg.pizzza_management_app.ingredient.constant;
 
-public class IngredientConstants {
+public final class IngredientConstants {
 
   private IngredientConstants() {
     throw new IllegalCallerException("Constant class");
