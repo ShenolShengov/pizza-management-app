@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.1'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id "com.diffplug.spotless" version "8.1.0"
 }
 
 group = 'shengov.bg'
@@ -17,6 +18,18 @@ java {
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
+	}
+}
+
+spotless {
+	java {
+		target 'src/**/*.java'
+		importOrder()
+		removeUnusedImports()
+		googleJavaFormat('1.33.0')  // updated version
+		formatAnnotations()
+		trimTrailingWhitespace()
+		endWithNewline()
 	}
 }
 
