@@ -34,8 +34,7 @@ public class IngredientServiceImpl implements IngredientService {
     Ingredient saved = ingredientRepository.save(toCreate);
     String message = String.format(SUCCESSFULLY_CREATE_INGREDIENT, saved.getName());
     log.debug(message);
-    return new IngredientResponse(
-        saved.getId(), saved.getName(), message);
+    return new IngredientResponse(saved.getId(), saved.getName(), message);
   }
 
   @Override
