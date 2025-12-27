@@ -19,6 +19,13 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+        .authorizeHttpRequests(
+            requests ->
+                requests
+                    .requestMatchers("/api/ingredients/**")
+                    .hasRole("ADMIN")
+                    .anyRequest()
+                    .authenticated())
         .build();
   }
 }

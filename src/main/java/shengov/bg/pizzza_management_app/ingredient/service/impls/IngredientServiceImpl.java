@@ -29,8 +29,9 @@ public class IngredientServiceImpl implements IngredientService {
     }
     Ingredient toCreate = new Ingredient();
     toCreate.setName(request.name());
-    Ingredient save = ingredientRepository.save(toCreate);
-    return new IngredientResponse(save.getId(), save.getName(), SUCCESSFULLY_CREATE_INGREDIENT);
+    Ingredient saved = ingredientRepository.save(toCreate);
+    return new IngredientResponse(
+        saved.getId(), saved.getName(), SUCCESSFULLY_CREATE_INGREDIENT.formatted(saved.getName()));
   }
 
   @Override
