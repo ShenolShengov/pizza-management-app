@@ -5,6 +5,7 @@ import static shengov.bg.pizzza_management_app.ingredient.constant.IngredientCon
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 @Service
 @AllArgsConstructor
 @Transactional
+@Slf4j
 public class IngredientServiceImpl implements IngredientService {
 
   private final IngredientRepository ingredientRepository;
@@ -30,8 +32,10 @@ public class IngredientServiceImpl implements IngredientService {
     Ingredient toCreate = new Ingredient();
     toCreate.setName(request.name());
     Ingredient saved = ingredientRepository.save(toCreate);
+    String message = String.format(SUCCESSFULLY_CREATE_INGREDIENT, saved.getName());
+    log.debug(message);
     return new IngredientResponse(
-        saved.getId(), saved.getName(), SUCCESSFULLY_CREATE_INGREDIENT.formatted(saved.getName()));
+        saved.getId(), saved.getName(), message);
   }
 
   @Override
