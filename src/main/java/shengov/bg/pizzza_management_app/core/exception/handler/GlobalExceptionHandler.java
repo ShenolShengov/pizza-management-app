@@ -17,9 +17,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import shengov.bg.pizzza_management_app.core.exception.ApiError;
+import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ApiError> handleResourceNotFoundException(
+      ResourceNotFoundException ex, HttpServletRequest request) {
+    HttpStatus status = HttpStatus.NOT_FOUND;
+    return ResponseEntity.status(status).body(ApiError.from(ex.getMessage(), status, request));
+  }
 
   @ExceptionHandler(NoHandlerFoundException.class)
   public ResponseEntity<ApiError> handleNoHandlerFoundException(HttpServletRequest request) {
