@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.hibernate.JDBCException;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,7 +20,6 @@ import shengov.bg.pizzza_management_app.core.exception.ApiError;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 
 @RestControllerAdvice
-@Order(Ordered.)
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(ResourceNotFoundException.class)
