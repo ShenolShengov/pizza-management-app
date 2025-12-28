@@ -1,10 +1,9 @@
 package shengov.bg.pizzza_management_app;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import shengov.bg.pizzza_management_app.config.BaseIntegrationTest;
 
-@SpringBootTest
-class PizzzaManagementAppApplicationTests {
+class PizzzaManagementAppApplicationTests extends BaseIntegrationTest {
 
   @Test
   void contextLoads() {}
