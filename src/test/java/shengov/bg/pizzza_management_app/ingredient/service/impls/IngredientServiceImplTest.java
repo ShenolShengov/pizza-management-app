@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
@@ -68,5 +70,30 @@ class IngredientServiceImplTest {
     assertTrue(exception.getMessage().contains(TEST_NAME));
 
     verify(ingredientRepository, never()).save(any(Ingredient.class));
+  }
+
+  @Test
+  void getById_ShouldThrowException_WhenIngredientNotExist() {
+
+    when(ingredientRepository.findById(TEST_ID)).thenReturn(Optional.empty());
+
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> toTest.getById(TEST_ID));
+
+    assertTrue(exception.getMessage().contains(TEST_ID.toString()));
+    assertTrue(exception.getMessage().contains("Ingredient"));
+  }
+
+  @Test
+  void getById_ShouldReturnIngredient_WhenExist() {
+
+    Ingredient ingredient = createTestIngredient();
+
+    when(ingredientRepository.findById(TEST_ID)).thenReturn(Optional.of(ingredient));
+
+    IngredientResponse response = toTest.getById(TEST_ID);
+
+    assertEquals(response.id(), TEST_ID);
+    assertEquals(response.name(), TEST_NAME);
   }
 }
