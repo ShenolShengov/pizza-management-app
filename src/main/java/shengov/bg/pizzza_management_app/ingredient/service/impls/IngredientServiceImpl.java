@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
@@ -47,7 +48,11 @@ public class IngredientServiceImpl implements IngredientService {
 
   @Override
   public IngredientResponse getById(UUID id) {
-    return null;
+    Ingredient ingredient =
+        ingredientRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ingredient", "id", id));
+    return new IngredientResponse(ingredient.getId(), ingredient.getName(), null);
   }
 
   @Override
