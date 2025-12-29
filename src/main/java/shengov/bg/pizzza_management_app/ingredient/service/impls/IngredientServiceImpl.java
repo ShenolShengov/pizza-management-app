@@ -23,9 +23,7 @@ public class IngredientServiceImpl implements IngredientService {
 
   @Override
   public IngredientResponse create(IngredientRequest request) {
-    if (ingredientRepository.existsByNameIgnoreCase(request.name())) {
-      throw new IngredientAlreadyExistsException(request.name());
-    }
+    isUniqueName(request.name());
     Ingredient toCreate = new Ingredient();
     toCreate.setName(request.name());
     Ingredient saved = ingredientRepository.save(toCreate);
@@ -34,7 +32,10 @@ public class IngredientServiceImpl implements IngredientService {
 
   @Override
   public IngredientResponse update(UUID id, IngredientRequest request) {
-    return null;
+    Ingredient toUpdate = byId(id);
+    if (!request.name().equals(toUpdate.getName())) isUniqueName(request.name());
+    toUpdate.setName(request.name());
+    return toResponse(toUpdate);
   }
 
   @Override
@@ -42,19 +43,27 @@ public class IngredientServiceImpl implements IngredientService {
 
   @Override
   public IngredientResponse getById(UUID id) {
-    Ingredient ingredient =
-        ingredientRepository
-            .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Ingredient", "id", id));
-    return toResponse(ingredient);
+    return toResponse(byId(id));
+  }
+
+  @Override
+  public Page<IngredientResponse> getAll(Pageable pageable) {
+    return ingredientRepository.findAll(pageable).map(this::toResponse);
   }
 
   private IngredientResponse toResponse(Ingredient ingredient) {
     return new IngredientResponse(ingredient.getId(), ingredient.getName());
   }
 
-  @Override
-  public Page<IngredientResponse> getAll(Pageable pageable) {
-    return ingredientRepository.findAll(pageable).map(this::toResponse);
+  private Ingredient byId(UUID id) {
+    return ingredientRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Ingredient", "id", id));
+  }
+
+  private void isUniqueName(String name) {
+    if (ingredientRepository.existsByNameIgnoreCase(name)) {
+      throw new IngredientAlreadyExistsException(name);
+    }
   }
 }
