@@ -1,11 +1,8 @@
 package shengov.bg.pizzza_management_app.ingredient.service.impls;
 
-import static shengov.bg.pizzza_management_app.ingredient.constant.IngredientConstants.SUCCESSFULLY_CREATE_INGREDIENT;
-
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +17,6 @@ import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 @Service
 @AllArgsConstructor
 @Transactional
-@Slf4j
 public class IngredientServiceImpl implements IngredientService {
 
   private final IngredientRepository ingredientRepository;
@@ -33,9 +29,7 @@ public class IngredientServiceImpl implements IngredientService {
     Ingredient toCreate = new Ingredient();
     toCreate.setName(request.name());
     Ingredient saved = ingredientRepository.save(toCreate);
-    String message = String.format(SUCCESSFULLY_CREATE_INGREDIENT, saved.getName());
-    log.debug(message);
-    return toResponse(saved, message);
+    return toResponse(saved);
   }
 
   @Override
@@ -52,15 +46,15 @@ public class IngredientServiceImpl implements IngredientService {
         ingredientRepository
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ingredient", "id", id));
-    return toResponse(ingredient, null);
+    return toResponse(ingredient);
   }
 
-  private IngredientResponse toResponse(Ingredient ingredient, String message) {
-    return new IngredientResponse(ingredient.getId(), ingredient.getName(), message);
+  private IngredientResponse toResponse(Ingredient ingredient) {
+    return new IngredientResponse(ingredient.getId(), ingredient.getName());
   }
 
   @Override
   public Page<IngredientResponse> getAll(Pageable pageable) {
-    return ingredientRepository.findAll(pageable).map(i -> toResponse(i, null));
+    return ingredientRepository.findAll(pageable).map(this::toResponse);
   }
 }
