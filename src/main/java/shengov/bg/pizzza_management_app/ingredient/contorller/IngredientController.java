@@ -4,6 +4,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -17,6 +20,12 @@ import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 public class IngredientController {
 
   private final IngredientService ingredientService;
+
+  @GetMapping
+  public ResponseEntity<PagedModel<IngredientResponse>> getAll(@PageableDefault Pageable pageable) {
+    PagedModel<IngredientResponse> response = new PagedModel<>(ingredientService.getAll(pageable));
+    return ResponseEntity.ok(response);
+  }
 
   @GetMapping("/{id}")
   public ResponseEntity<IngredientResponse> byId(@PathVariable @NotNull UUID id) {

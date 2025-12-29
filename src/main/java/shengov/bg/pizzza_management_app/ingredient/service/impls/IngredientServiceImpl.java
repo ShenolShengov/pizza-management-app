@@ -35,7 +35,7 @@ public class IngredientServiceImpl implements IngredientService {
     Ingredient saved = ingredientRepository.save(toCreate);
     String message = String.format(SUCCESSFULLY_CREATE_INGREDIENT, saved.getName());
     log.debug(message);
-    return new IngredientResponse(saved.getId(), saved.getName(), message);
+    return toResponse(saved, message);
   }
 
   @Override
@@ -52,11 +52,15 @@ public class IngredientServiceImpl implements IngredientService {
         ingredientRepository
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ingredient", "id", id));
-    return new IngredientResponse(ingredient.getId(), ingredient.getName(), null);
+    return toResponse(ingredient, null);
+  }
+
+  private IngredientResponse toResponse(Ingredient ingredient, String message) {
+    return new IngredientResponse(ingredient.getId(), ingredient.getName(), message);
   }
 
   @Override
   public Page<IngredientResponse> getAll(Pageable pageable) {
-    return null;
+    return ingredientRepository.findAll(pageable).map(i -> toResponse(i, null));
   }
 }
