@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
@@ -22,18 +26,21 @@ import shengov.bg.pizzza_management_app.ingredient.repository.IngredientReposito
 @ExtendWith(MockitoExtension.class)
 class IngredientServiceImplTest {
 
-  private final UUID TEST_ID = UUID.randomUUID();
   private final String TEST_NAME = "Tomato";
 
   @Mock private IngredientRepository ingredientRepository;
 
   @InjectMocks private IngredientServiceImpl toTest;
 
-  private Ingredient createTestIngredient() {
+  private Ingredient createTestIngredient(String name) {
     Ingredient ingredient = new Ingredient();
-    ReflectionTestUtils.setField(ingredient, "id", TEST_ID);
-    ReflectionTestUtils.setField(ingredient, "name", TEST_NAME);
+    ReflectionTestUtils.setField(ingredient, "id", UUID.randomUUID());
+    ReflectionTestUtils.setField(ingredient, "name", name);
     return ingredient;
+  }
+
+  private Ingredient createTestIngredient() {
+    return createTestIngredient(TEST_NAME);
   }
 
   private IngredientRequest createTestIngredientRequest() {
@@ -46,14 +53,14 @@ class IngredientServiceImplTest {
     Ingredient savedIngredient = createTestIngredient();
     IngredientRequest request = createTestIngredientRequest();
 
-    when(ingredientRepository.existsByNameIgnoreCase(TEST_NAME)).thenReturn(false);
+    when(ingredientRepository.existsByNameIgnoreCase(savedIngredient.getName())).thenReturn(false);
     when(ingredientRepository.save(any(Ingredient.class))).thenReturn(savedIngredient);
 
     IngredientResponse response = toTest.create(request);
 
     assertNotNull(response);
-    assertEquals(TEST_NAME, response.name());
-    assertEquals(TEST_ID, response.id());
+    assertEquals(savedIngredient.getName(), response.name());
+    assertEquals(savedIngredient.getId(), response.id());
     verify(ingredientRepository, times(1)).save(any(Ingredient.class));
   }
 
@@ -74,13 +81,13 @@ class IngredientServiceImplTest {
 
   @Test
   void getById_ShouldThrowException_WhenIngredientNotExist() {
-
-    when(ingredientRepository.findById(TEST_ID)).thenReturn(Optional.empty());
+    UUID notExistId = UUID.randomUUID();
+    when(ingredientRepository.findById(notExistId)).thenReturn(Optional.empty());
 
     ResourceNotFoundException exception =
-        assertThrows(ResourceNotFoundException.class, () -> toTest.getById(TEST_ID));
+        assertThrows(ResourceNotFoundException.class, () -> toTest.getById(notExistId));
 
-    assertTrue(exception.getMessage().contains(TEST_ID.toString()));
+    assertTrue(exception.getMessage().contains(notExistId.toString()));
     assertTrue(exception.getMessage().contains("Ingredient"));
   }
 
@@ -89,11 +96,27 @@ class IngredientServiceImplTest {
 
     Ingredient ingredient = createTestIngredient();
 
-    when(ingredientRepository.findById(TEST_ID)).thenReturn(Optional.of(ingredient));
+    when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
 
-    IngredientResponse response = toTest.getById(TEST_ID);
+    IngredientResponse response = toTest.getById(ingredient.getId());
 
-    assertEquals(response.id(), TEST_ID);
-    assertEquals(response.name(), TEST_NAME);
+    assertEquals(response.id(), ingredient.getId());
+    assertEquals(response.name(), ingredient.getName());
+  }
+
+  @Test
+  void getAll_ShouldReturn_CorrectResult() {
+    List<Ingredient> testIngredients =
+        List.of(
+            createTestIngredient(),
+            createTestIngredient("Cheese"),
+            createTestIngredient("Cucumber"));
+
+    when(ingredientRepository.findAll(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(testIngredients));
+
+    Page<IngredientResponse> all = toTest.getAll(Pageable.unpaged());
+
+    assertEquals(all.getTotalElements(), testIngredients.size());
   }
 }
