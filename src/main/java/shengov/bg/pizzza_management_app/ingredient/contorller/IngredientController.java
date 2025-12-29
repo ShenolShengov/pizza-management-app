@@ -1,7 +1,6 @@
 package shengov.bg.pizzza_management_app.ingredient.contorller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,7 @@ public class IngredientController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<IngredientResponse> byId(@PathVariable @NotNull UUID id) {
+  public ResponseEntity<IngredientResponse> byId(@PathVariable UUID id) {
     return ResponseEntity.ok(ingredientService.getById(id));
   }
 
@@ -38,5 +37,12 @@ public class IngredientController {
     return ResponseEntity.created(
             ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").build(response.id()))
         .body(response);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<IngredientResponse> update(
+      @RequestBody @Valid IngredientRequest request, @PathVariable UUID id) {
+    IngredientResponse response = ingredientService.update(id, request);
+    return ResponseEntity.ok(response);
   }
 }
