@@ -23,7 +23,7 @@ public class IngredientServiceImpl implements IngredientService {
 
   @Override
   public IngredientResponse create(IngredientRequest request) {
-    isUniqueName(request.name());
+    validateUniqueName(request.name());
     Ingredient toCreate = new Ingredient();
     toCreate.setName(request.name());
     Ingredient saved = ingredientRepository.save(toCreate);
@@ -33,7 +33,7 @@ public class IngredientServiceImpl implements IngredientService {
   @Override
   public IngredientResponse update(UUID id, IngredientRequest request) {
     Ingredient toUpdate = byId(id);
-    if (!request.name().equals(toUpdate.getName())) isUniqueName(request.name());
+    if (!request.name().equalsIgnoreCase(toUpdate.getName())) validateUniqueName(request.name());
     toUpdate.setName(request.name());
     return toResponse(toUpdate);
   }
@@ -61,7 +61,7 @@ public class IngredientServiceImpl implements IngredientService {
         .orElseThrow(() -> new ResourceNotFoundException("Ingredient", "id", id));
   }
 
-  private void isUniqueName(String name) {
+  private void validateUniqueName(String name) {
     if (ingredientRepository.existsByNameIgnoreCase(name)) {
       throw new IngredientAlreadyExistsException(name);
     }
