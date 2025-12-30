@@ -39,7 +39,9 @@ public class IngredientServiceImpl implements IngredientService {
   }
 
   @Override
-  public void delete(UUID id) {}
+  public void delete(UUID id) {
+    ingredientRepository.delete(byId(id));
+  }
 
   @Override
   public IngredientResponse getById(UUID id) {
