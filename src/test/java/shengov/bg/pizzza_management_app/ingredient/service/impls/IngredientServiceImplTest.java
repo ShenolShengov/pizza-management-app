@@ -143,4 +143,24 @@ class IngredientServiceImplTest {
     assertEquals(response.name(), TEST_NAME);
     assertEquals(ingredientToUpdate.getName(), TEST_NAME);
   }
+
+  @Test
+  void delete_ShouldThrow_WhenIngredientNotExist() {
+    UUID notExistId = UUID.randomUUID();
+    when(ingredientRepository.findById(notExistId)).thenReturn(Optional.empty());
+
+    assertThrows(ResourceNotFoundException.class, () -> toTest.delete(notExistId));
+
+    verify(ingredientRepository, never()).delete(any(Ingredient.class));
+  }
+
+  @Test
+  void delete_ShouldDelete_WhenIngredientExist() {
+    Ingredient ingredient = createTestIngredient();
+    when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
+
+    toTest.delete(ingredient.getId());
+
+    verify(ingredientRepository, times(1)).delete(ingredient);
+  }
 }
