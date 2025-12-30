@@ -119,4 +119,28 @@ class IngredientServiceImplTest {
 
     assertEquals(all.getTotalElements(), testIngredients.size());
   }
+
+  @Test
+  void update_ShouldThrow_WhenIngredientNotExist() {
+    UUID notExistId = UUID.randomUUID();
+    when(ingredientRepository.findById(notExistId)).thenReturn(Optional.empty());
+
+    assertThrows(
+        ResourceNotFoundException.class,
+        () -> toTest.update(notExistId, createTestIngredientRequest()));
+  }
+
+  @Test
+  void update_ShouldUpdate_WhenIngredientExist() {
+    String name = "Pepperoni";
+    Ingredient ingredientToUpdate = createTestIngredient(name);
+    IngredientRequest request = createTestIngredientRequest();
+    when(ingredientRepository.findById(ingredientToUpdate.getId()))
+        .thenReturn(Optional.of(ingredientToUpdate));
+
+    IngredientResponse response = toTest.update(ingredientToUpdate.getId(), request);
+
+    assertEquals(response.name(), TEST_NAME);
+    assertEquals(ingredientToUpdate.getName(), TEST_NAME);
+  }
 }
