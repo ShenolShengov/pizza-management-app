@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
@@ -22,6 +23,7 @@ public class IngredientServiceImpl implements IngredientService {
   private final IngredientRepository ingredientRepository;
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public IngredientResponse create(IngredientRequest request) {
     validateUniqueName(request.name());
     Ingredient toCreate = new Ingredient();
@@ -31,6 +33,7 @@ public class IngredientServiceImpl implements IngredientService {
   }
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public IngredientResponse update(UUID id, IngredientRequest request) {
     Ingredient toUpdate = byId(id);
     if (!request.name().equalsIgnoreCase(toUpdate.getName())) validateUniqueName(request.name());
@@ -39,6 +42,7 @@ public class IngredientServiceImpl implements IngredientService {
   }
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public void delete(UUID id) {
     ingredientRepository.delete(byId(id));
   }
