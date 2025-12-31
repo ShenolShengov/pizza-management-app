@@ -27,4 +27,7 @@ public final class ExceptionConstants {
 
   public static final String VALIDATION_FAILED_MESSAGE =
       "Validation failed for one or more fields in your request.";
+
+  public static final String ACCESS_DENIED_MESSAGE =
+      "Insufficient permissions to perform this action";
 }

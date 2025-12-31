@@ -10,6 +10,7 @@ import org.hibernate.JDBCException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,6 +28,13 @@ public class GlobalExceptionHandler {
       ResourceNotFoundException ex, HttpServletRequest request) {
     HttpStatus status = HttpStatus.NOT_FOUND;
     return ResponseEntity.status(status).body(ApiError.from(ex.getMessage(), status, request));
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ApiError> handleAccessDeniedException(HttpServletRequest request) {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status)
+        .body(ApiError.from(ACCESS_DENIED_MESSAGE, status, request));
   }
 
   @ExceptionHandler(NoHandlerFoundException.class)
