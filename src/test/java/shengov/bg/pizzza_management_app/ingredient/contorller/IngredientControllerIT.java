@@ -1,14 +1,5 @@
 package shengov.bg.pizzza_management_app.ingredient.contorller;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredient;
-import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredientRequest;
-import static shengov.bg.pizzza_management_app.testutils.ObjectMapperTestUtils.toJson;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +9,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import shengov.bg.pizzza_management_app.config.BaseIntegrationTest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
+import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredient;
+import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredientRequest;
+import static shengov.bg.pizzza_management_app.testutils.ObjectMapperTestUtils.toJson;
 
 class IngredientControllerIT extends BaseIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
+  @Autowired private MockMvcTestUtils mockMvcTestUtils;
   @Autowired private IngredientRepository ingredientRepository;
 
   private static final String INGREDIENT_ENDPOINT = "/api/ingredients";
@@ -32,7 +34,10 @@ class IngredientControllerIT extends BaseIntegrationTest {
   void create_ShouldReturnUnauthorized_WhenIsNotAuthenticated() throws Exception {
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
     mockMvc
-        .perform(post("").contentType(MediaType.APPLICATION_JSON_VALUE).content(toJson(request)))
+        .perform(
+            post(INGREDIENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(toJson(request)))
         .andExpect(status().isUnauthorized());
   }
 
@@ -41,12 +46,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
   @DisplayName("POST api/ingredients -> 403 when user is not admin")
   void create_ShouldReturnForbidden_WhenIsNotAdmin() throws Exception {
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-    mockMvc
-        .perform(
-            post(INGREDIENT_ENDPOINT)
-                .content(toJson(request))
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(status().isForbidden());
+    mockMvcTestUtils.performPost(INGREDIENT_ENDPOINT, request).andExpect(status().isForbidden());
   }
 
   @Test
@@ -54,11 +54,8 @@ class IngredientControllerIT extends BaseIntegrationTest {
   @DisplayName("POST api/ingredients -> 201 when ingredient is created successfully")
   void create_ShouldReturnCreated_WhenIsAdmin() throws Exception {
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-    mockMvc
-        .perform(
-            post(INGREDIENT_ENDPOINT)
-                .content(toJson(request))
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
+    mockMvcTestUtils
+        .performPost(INGREDIENT_ENDPOINT, request)
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.name", equalTo(request.name())));
     assertTrue(
@@ -72,11 +69,9 @@ class IngredientControllerIT extends BaseIntegrationTest {
   void create_ShouldReturnConflict_WhenIngredientAlreadyExist() throws Exception {
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
     ingredientRepository.save(createTestIngredient(request));
-    mockMvc
-        .perform(
-            post(INGREDIENT_ENDPOINT)
-                .content(toJson(request))
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
+
+    mockMvcTestUtils
+        .performPost(INGREDIENT_ENDPOINT, request)
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.status", equalTo(409)))
         .andExpect(jsonPath("$.error", equalTo("Conflict")));
