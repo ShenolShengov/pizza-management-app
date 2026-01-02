@@ -1,5 +1,14 @@
 package shengov.bg.pizzza_management_app.ingredient.contorller;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredient;
+import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredientRequest;
+import static shengov.bg.pizzza_management_app.testutils.ObjectMapperTestUtils.toJson;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +20,6 @@ import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredient;
-import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredientRequest;
-import static shengov.bg.pizzza_management_app.testutils.ObjectMapperTestUtils.toJson;
-
 class IngredientControllerIT extends BaseIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
@@ -28,6 +28,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
 
   private static final String INGREDIENT_ENDPOINT = "/api/ingredients";
   private static final String TEST_NAME = "Cheese";
+  private static final String NOT_VALID_NAME = "T";
 
   @Test
   @DisplayName("POST api/ingredients -> 401 when user is not authenticated")
@@ -75,5 +76,21 @@ class IngredientControllerIT extends BaseIntegrationTest {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.status", equalTo(409)))
         .andExpect(jsonPath("$.error", equalTo("Conflict")));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("POST api/ingredients -> 400 when data is not valid")
+  void create_ShouldReturnBadRequest_WhenDataIsNotValid() throws Exception {
+    IngredientRequest request = createTestIngredientRequest(NOT_VALID_NAME);
+    ingredientRepository.save(createTestIngredient(request));
+
+    mockMvcTestUtils
+        .performPost(INGREDIENT_ENDPOINT, request)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status", equalTo(400)))
+        .andExpect(jsonPath("$.error", equalTo("Bad Request")))
+        .andExpect(jsonPath("$.errors").isMap())
+        .andExpect(jsonPath("$.errors.name").exists());
   }
 }
