@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import shengov.bg.pizzza_management_app.config.BaseIntegrationTest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
+import shengov.bg.pizzza_management_app.ingredient.model.Ingredient;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 import shengov.bg.pizzza_management_app.testutils.IngredientTestUtils;
 import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
@@ -23,7 +24,9 @@ class IngredientControllerIT extends BaseIntegrationTest {
   @Autowired private IngredientTestUtils ingredientTestUtils;
 
   private static final String INGREDIENT_ENDPOINT = "/api/ingredients";
+  private static final String INGREDIENT_BY_ID_ENDPOINT = "/api/ingredients/%s";
   private static final String TEST_NAME = "Cheese";
+  private static final String TEST_UPDATE_NAME = "Cheese";
   private static final String NOT_VALID_NAME = "T";
 
   @Test
@@ -82,5 +85,24 @@ class IngredientControllerIT extends BaseIntegrationTest {
         .andExpect(jsonPath("$.error", equalTo("Bad Request")))
         .andExpect(jsonPath("$.errors").isMap())
         .andExpect(jsonPath("$.errors.name").exists());
+  }
+
+  @Test
+  @DisplayName("PUT api/ingredients/{id} -> 401 when user is not authenticated")
+  void update_ShouldReturnUnauthorized_WhenIsNotAuthenticated() throws Exception {
+    IngredientRequest request = createTestIngredientRequest(TEST_NAME);
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+    mockMvcTestUtils.performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), createTestIngredientRequest(TEST_UPDATE_NAME))
+            .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("PUT api/ingredients/{id} -> 403 when user is not admin")
+  void update_ShouldReturnForbidden_WhenIsNotAdmin() throws Exception {
+    IngredientRequest request = createTestIngredientRequest(TEST_NAME);
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+    mockMvcTestUtils.performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), createTestIngredientRequest(TEST_UPDATE_NAME))
+            .andExpect(status().isForbidden());
   }
 }
