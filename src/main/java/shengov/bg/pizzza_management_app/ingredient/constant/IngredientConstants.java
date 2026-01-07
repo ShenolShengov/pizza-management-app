@@ -8,4 +8,6 @@ public final class IngredientConstants {
 
   public static final String INGREDIENT_ALREADY_EXIST_MESSAGE =
       "Ingredient with name %s already exist";
+
+  public static final String INVALID_NAME_MESSAGE = "Name must be between 2 and 50 characters";
 }
