@@ -134,9 +134,9 @@ class IngredientControllerIT extends BaseIntegrationTest {
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("PUT api/ingredients/{id} -> 409 when name is already occupied")
   void update_ShouldReturnConflict_WhenNameIsAlreadyOccupied() throws Exception {
-    final String NEW_NAME = "Bread";
+    final String UPDATED_NAME = "Bread";
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-    IngredientRequest updateRequest = createTestIngredientRequest(NEW_NAME);
+    IngredientRequest updateRequest = createTestIngredientRequest(UPDATED_NAME);
     Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
     ingredientTestUtils.saveTestIngredient(updateRequest);
     mockMvcTestUtils
@@ -144,5 +144,20 @@ class IngredientControllerIT extends BaseIntegrationTest {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.status", equalTo(409)))
         .andExpect(jsonPath("$.error", equalTo("Conflict")));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("PUT api/ingredients/{id} -> 200 when is updated successfully")
+  void update_ShouldReturnOkay_WhenUpdateSuccessfully() throws Exception {
+    final String UPDATED_NAME = "Bread";
+    IngredientRequest request = createTestIngredientRequest(TEST_NAME);
+    IngredientRequest updateRequest = createTestIngredientRequest(UPDATED_NAME);
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+    mockMvcTestUtils
+        .performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), updateRequest)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", equalTo(UPDATED_NAME)));
+    ingredientRepository.existsByNameIgnoreCase(UPDATED_NAME);
   }
 }
