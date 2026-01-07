@@ -11,6 +11,7 @@ import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
+import shengov.bg.pizzza_management_app.ingredient.mapper.IngredientMapper;
 import shengov.bg.pizzza_management_app.ingredient.model.Ingredient;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
@@ -21,15 +22,15 @@ import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 public class IngredientServiceImpl implements IngredientService {
 
   private final IngredientRepository ingredientRepository;
+  private final IngredientMapper mapper;
 
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   public IngredientResponse create(IngredientRequest request) {
     validateUniqueName(request.name());
-    Ingredient toCreate = new Ingredient();
-    toCreate.setName(request.name());
+    Ingredient toCreate = mapper.requestToIngredient(request);
     Ingredient saved = ingredientRepository.save(toCreate);
-    return toResponse(saved);
+    return mapper.ingredientToResponse(saved);
   }
 
   @Override
@@ -38,7 +39,7 @@ public class IngredientServiceImpl implements IngredientService {
     Ingredient toUpdate = byId(id);
     if (!request.name().equalsIgnoreCase(toUpdate.getName())) validateUniqueName(request.name());
     toUpdate.setName(request.name());
-    return toResponse(toUpdate);
+    return mapper.ingredientToResponse(toUpdate);
   }
 
   @Override
@@ -49,16 +50,12 @@ public class IngredientServiceImpl implements IngredientService {
 
   @Override
   public IngredientResponse getById(UUID id) {
-    return toResponse(byId(id));
+    return mapper.ingredientToResponse(byId(id));
   }
 
   @Override
   public Page<IngredientResponse> getAll(Pageable pageable) {
-    return ingredientRepository.findAll(pageable).map(this::toResponse);
-  }
-
-  private IngredientResponse toResponse(Ingredient ingredient) {
-    return new IngredientResponse(ingredient.getId(), ingredient.getName());
+    return ingredientRepository.findAll(pageable).map(mapper::ingredientToResponse);
   }
 
   private Ingredient byId(UUID id) {
