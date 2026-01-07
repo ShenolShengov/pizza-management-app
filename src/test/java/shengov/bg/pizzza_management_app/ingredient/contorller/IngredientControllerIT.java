@@ -92,8 +92,11 @@ class IngredientControllerIT extends BaseIntegrationTest {
   void update_ShouldReturnUnauthorized_WhenIsNotAuthenticated() throws Exception {
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
     Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
-    mockMvcTestUtils.performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), createTestIngredientRequest(TEST_UPDATE_NAME))
-            .andExpect(status().isUnauthorized());
+    mockMvcTestUtils
+        .performPut(
+            INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()),
+            createTestIngredientRequest(TEST_UPDATE_NAME))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -102,8 +105,11 @@ class IngredientControllerIT extends BaseIntegrationTest {
   void update_ShouldReturnForbidden_WhenIsNotAdmin() throws Exception {
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
     Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
-    mockMvcTestUtils.performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), createTestIngredientRequest(TEST_UPDATE_NAME))
-            .andExpect(status().isForbidden());
+    mockMvcTestUtils
+        .performPut(
+            INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()),
+            createTestIngredientRequest(TEST_UPDATE_NAME))
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -113,11 +119,14 @@ class IngredientControllerIT extends BaseIntegrationTest {
     final String INVALID_NAME = "m";
     IngredientRequest request = createTestIngredientRequest(TEST_NAME);
     Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
-    mockMvcTestUtils.performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), createTestIngredientRequest(INVALID_NAME))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status", equalTo(400)))
-            .andExpect(jsonPath("$.error", equalTo("Bad Request")))
-            .andExpect(jsonPath("$.errors").isMap())
-            .andExpect(jsonPath("$.errors.name").exists());
+    mockMvcTestUtils
+        .performPut(
+            INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()),
+            createTestIngredientRequest(INVALID_NAME))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status", equalTo(400)))
+        .andExpect(jsonPath("$.error", equalTo("Bad Request")))
+        .andExpect(jsonPath("$.errors").isMap())
+        .andExpect(jsonPath("$.errors.name").exists());
   }
 }
