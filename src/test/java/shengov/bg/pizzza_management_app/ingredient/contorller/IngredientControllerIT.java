@@ -129,4 +129,20 @@ class IngredientControllerIT extends BaseIntegrationTest {
         .andExpect(jsonPath("$.errors").isMap())
         .andExpect(jsonPath("$.errors.name").exists());
   }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("PUT api/ingredients/{id} -> 409 when name is already occupied")
+  void update_ShouldReturnConflict_WhenNameIsAlreadyOccupied() throws Exception {
+    final String NEW_NAME = "Bread";
+    IngredientRequest request = createTestIngredientRequest(TEST_NAME);
+    IngredientRequest updateRequest = createTestIngredientRequest(NEW_NAME);
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+    ingredientTestUtils.saveTestIngredient(updateRequest);
+    mockMvcTestUtils
+        .performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), updateRequest)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.status", equalTo(409)))
+        .andExpect(jsonPath("$.error", equalTo("Conflict")));
+  }
 }
