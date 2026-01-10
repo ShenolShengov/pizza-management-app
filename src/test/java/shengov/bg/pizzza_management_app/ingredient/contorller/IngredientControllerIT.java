@@ -17,6 +17,8 @@ import shengov.bg.pizzza_management_app.ingredient.repository.IngredientReposito
 import shengov.bg.pizzza_management_app.testutils.IngredientTestUtils;
 import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
 
+import java.util.UUID;
+
 class IngredientControllerIT extends BaseIntegrationTest {
 
   @Autowired private MockMvcTestUtils mockMvcTestUtils;
@@ -160,4 +162,25 @@ class IngredientControllerIT extends BaseIntegrationTest {
         .andExpect(jsonPath("$.name", equalTo(UPDATED_NAME)));
     ingredientRepository.existsByNameIgnoreCase(UPDATED_NAME);
   }
+
+  @Test
+  @WithMockUser
+  @DisplayName("GET api/ingredients/{id} -> 404 when ingredient not exist")
+  void getById_ShouldReturnNotFound_WhenNotExist() throws Exception {
+    mockMvcTestUtils.performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(UUID.randomUUID().toString()))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("GET api/ingredients/{id} -> 200 when ingredient exist")
+  void getById_ShouldReturnIngredient_WhenExist() throws Exception {
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
+    mockMvcTestUtils.performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId().toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", equalTo(ingredient.getId().toString())))
+            .andExpect(jsonPath("$.name", equalTo(ingredient.getName())));
+  }
+
+
 }
