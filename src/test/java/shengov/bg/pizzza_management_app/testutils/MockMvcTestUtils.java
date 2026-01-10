@@ -1,7 +1,6 @@
 package shengov.bg.pizzza_management_app.testutils;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static shengov.bg.pizzza_management_app.testutils.ObjectMapperTestUtils.toJson;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +22,9 @@ public class MockMvcTestUtils {
   public ResultActions performPut(String uri, Object body) throws Exception {
     return mockMvc.perform(
         put(uri).contentType(MediaType.APPLICATION_JSON_VALUE).content(toJson(body)));
+  }
+
+  public ResultActions performGet(String uri) throws Exception {
+    return mockMvc.perform(get(uri));
   }
 }
