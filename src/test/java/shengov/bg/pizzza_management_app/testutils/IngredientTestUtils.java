@@ -24,4 +24,10 @@ public final class IngredientTestUtils {
   public Ingredient saveTestIngredient(IngredientRequest request) {
     return ingredientRepository.save(createTestIngredient(request));
   }
+
+  public void saveIngredients(String[] names) {
+    for (String ingredient : names) {
+      saveTestIngredient(createTestIngredientRequest(ingredient));
+    }
+  }
 }

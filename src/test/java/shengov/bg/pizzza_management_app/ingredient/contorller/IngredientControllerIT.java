@@ -1,15 +1,19 @@
 package shengov.bg.pizzza_management_app.ingredient.contorller;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredientRequest;
 
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 import shengov.bg.pizzza_management_app.config.BaseIntegrationTest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.model.Ingredient;
@@ -17,10 +21,9 @@ import shengov.bg.pizzza_management_app.ingredient.repository.IngredientReposito
 import shengov.bg.pizzza_management_app.testutils.IngredientTestUtils;
 import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
 
-import java.util.UUID;
-
 class IngredientControllerIT extends BaseIntegrationTest {
 
+  @Autowired private MockMvc mockMvc;
   @Autowired private MockMvcTestUtils mockMvcTestUtils;
   @Autowired private IngredientRepository ingredientRepository;
   @Autowired private IngredientTestUtils ingredientTestUtils;
@@ -167,20 +170,35 @@ class IngredientControllerIT extends BaseIntegrationTest {
   @WithMockUser
   @DisplayName("GET api/ingredients/{id} -> 404 when ingredient not exist")
   void getById_ShouldReturnNotFound_WhenNotExist() throws Exception {
-    mockMvcTestUtils.performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(UUID.randomUUID().toString()))
-            .andExpect(status().isNotFound());
+    mockMvcTestUtils
+        .performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(UUID.randomUUID().toString()))
+        .andExpect(status().isNotFound());
   }
 
   @Test
   @WithMockUser
   @DisplayName("GET api/ingredients/{id} -> 200 when ingredient exist")
   void getById_ShouldReturnIngredient_WhenExist() throws Exception {
-    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
-    mockMvcTestUtils.performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId().toString()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id", equalTo(ingredient.getId().toString())))
-            .andExpect(jsonPath("$.name", equalTo(ingredient.getName())));
+    Ingredient ingredient =
+        ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
+    mockMvcTestUtils
+        .performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId().toString()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", equalTo(ingredient.getId().toString())))
+        .andExpect(jsonPath("$.name", equalTo(ingredient.getName())));
   }
 
-
+  @Test
+  @WithMockUser
+  @DisplayName("GET api/ingredients")
+  void getAll_ShouldReturnCorrectIngredients() throws Exception {
+    String[] ingredients = {"Cheese", "Bread", "Tomato", "Cucumber", "Onion"};
+    ingredientTestUtils.saveIngredients(ingredients);
+    mockMvc
+        .perform(get(INGREDIENT_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content", hasSize(ingredients.length)))
+        .andExpect(jsonPath("$.page.totalElements", equalTo(ingredients.length)));
+  }
 }
