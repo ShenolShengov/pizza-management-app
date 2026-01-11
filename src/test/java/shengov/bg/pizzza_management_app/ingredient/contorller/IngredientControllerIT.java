@@ -2,6 +2,7 @@ package shengov.bg.pizzza_management_app.ingredient.contorller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -221,5 +222,26 @@ class IngredientControllerIT extends BaseIntegrationTest {
     mockMvcTestUtils
         .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("DELETE api/ingredients/{id} -> 404 when ingredient is not found")
+  void delete_ShouldReturnNotFound_WhenNotExist() throws Exception {
+    mockMvcTestUtils
+        .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(UUID.randomUUID().toString()))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("DELETE api/ingredients/{id} -> 404 when ingredient is not found")
+  void delete_ShouldDelete_WhenExist() throws Exception {
+    IngredientRequest request = createTestIngredientRequest(TEST_NAME);
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+    mockMvcTestUtils
+        .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
+        .andExpect(status().isNoContent());
+    assertFalse(ingredientRepository.existsByNameIgnoreCase(ingredient.getName()));
   }
 }
