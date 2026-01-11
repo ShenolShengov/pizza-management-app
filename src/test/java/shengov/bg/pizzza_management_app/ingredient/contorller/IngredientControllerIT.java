@@ -201,4 +201,25 @@ class IngredientControllerIT extends BaseIntegrationTest {
         .andExpect(jsonPath("$.content", hasSize(ingredients.length)))
         .andExpect(jsonPath("$.page.totalElements", equalTo(ingredients.length)));
   }
+
+  @Test
+  @DisplayName("DELETE api/ingredients/{id} -> 401 when user is not authenticated")
+  void delete_ShouldReturnUnauthorized_WhenIsNotAuthenticated() throws Exception {
+    IngredientRequest request = createTestIngredientRequest(TEST_NAME);
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+    mockMvcTestUtils
+        .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("DELETE api/ingredients/{id} -> 403 when user is not admin")
+  void delete_ShouldReturnForbidden_WhenIsNotAdmin() throws Exception {
+    IngredientRequest request = createTestIngredientRequest(TEST_NAME);
+    Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+    mockMvcTestUtils
+        .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
+        .andExpect(status().isForbidden());
+  }
 }
