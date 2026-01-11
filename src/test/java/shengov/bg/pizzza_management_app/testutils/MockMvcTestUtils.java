@@ -27,4 +27,8 @@ public class MockMvcTestUtils {
   public ResultActions performGet(String uri) throws Exception {
     return mockMvc.perform(get(uri));
   }
+
+  public ResultActions performDelete(String uri) throws Exception {
+    return mockMvc.perform(delete(uri));
+  }
 }
