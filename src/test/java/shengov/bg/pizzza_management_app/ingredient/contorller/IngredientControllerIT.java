@@ -180,6 +180,17 @@ class IngredientControllerIT extends BaseIntegrationTest {
 
   @Nested
   class GetByIdTests {
+
+    @Test
+    @DisplayName("GET api/ingredients/{id} -> 401 when user is not authenticated")
+    void getById_ShouldReturnUnauthorized_WhenUserIsNoAuthenticated() throws Exception {
+      Ingredient ingredient =
+          ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
+      mockMvcTestUtils
+          .performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId().toString()))
+          .andExpect(status().isUnauthorized());
+    }
+
     @Test
     @WithMockUser
     @DisplayName("GET api/ingredients/{id} -> 404 when ingredient not exist")
@@ -205,6 +216,13 @@ class IngredientControllerIT extends BaseIntegrationTest {
 
   @Nested
   class GetAllTests {
+
+    @Test
+    @DisplayName("GET api/ingredients/{id} -> 401 when user is not authenticated")
+    void getAll_ShouldReturnUnauthorized_WhenUserIsNoAuthenticated() throws Exception {
+      ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
+      mockMvcTestUtils.performGet(INGREDIENT_ENDPOINT).andExpect(status().isUnauthorized());
+    }
 
     @Test
     @WithMockUser
