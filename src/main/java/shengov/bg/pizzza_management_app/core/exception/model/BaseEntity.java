@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @MappedSuperclass
 @Getter
-public class BaseEntity {
+public abstract class BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
