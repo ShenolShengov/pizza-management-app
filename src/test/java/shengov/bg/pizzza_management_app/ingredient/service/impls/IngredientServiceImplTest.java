@@ -20,7 +20,7 @@ import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
-import shengov.bg.pizzza_management_app.ingredient.model.Ingredient;
+import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,14 +32,14 @@ class IngredientServiceImplTest {
 
   @InjectMocks private IngredientServiceImpl toTest;
 
-  private Ingredient createTestIngredient(String name) {
-    Ingredient ingredient = new Ingredient();
+  private IngredientEntity createTestIngredient(String name) {
+    IngredientEntity ingredient = new IngredientEntity();
     ReflectionTestUtils.setField(ingredient, "id", UUID.randomUUID());
     ReflectionTestUtils.setField(ingredient, "name", name);
     return ingredient;
   }
 
-  private Ingredient createTestIngredient() {
+  private IngredientEntity createTestIngredient() {
     return createTestIngredient(TEST_NAME);
   }
 
@@ -50,18 +50,18 @@ class IngredientServiceImplTest {
   @Test
   void create_ShouldSaveIngredient_WhenNameIsUnique() {
 
-    Ingredient savedIngredient = createTestIngredient();
+    IngredientEntity savedIngredient = createTestIngredient();
     IngredientRequest request = createTestIngredientRequest();
 
     when(ingredientRepository.existsByNameIgnoreCase(savedIngredient.getName())).thenReturn(false);
-    when(ingredientRepository.save(any(Ingredient.class))).thenReturn(savedIngredient);
+    when(ingredientRepository.save(any(IngredientEntity.class))).thenReturn(savedIngredient);
 
     IngredientResponse response = toTest.create(request);
 
     assertNotNull(response);
     assertEquals(savedIngredient.getName(), response.name());
     assertEquals(savedIngredient.getId(), response.id());
-    verify(ingredientRepository, times(1)).save(any(Ingredient.class));
+    verify(ingredientRepository, times(1)).save(any(IngredientEntity.class));
   }
 
   @Test
@@ -76,7 +76,7 @@ class IngredientServiceImplTest {
 
     assertTrue(exception.getMessage().contains(TEST_NAME));
 
-    verify(ingredientRepository, never()).save(any(Ingredient.class));
+    verify(ingredientRepository, never()).save(any(IngredientEntity.class));
   }
 
   @Test
@@ -94,7 +94,7 @@ class IngredientServiceImplTest {
   @Test
   void getById_ShouldReturnIngredient_WhenExist() {
 
-    Ingredient ingredient = createTestIngredient();
+    IngredientEntity ingredient = createTestIngredient();
 
     when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
 
@@ -106,7 +106,7 @@ class IngredientServiceImplTest {
 
   @Test
   void getAll_ShouldReturn_CorrectResult() {
-    List<Ingredient> testIngredients =
+    List<IngredientEntity> testIngredients =
         List.of(
             createTestIngredient(),
             createTestIngredient("Cheese"),
@@ -133,7 +133,7 @@ class IngredientServiceImplTest {
   @Test
   void update_ShouldUpdate_WhenIngredientExist() {
     String name = "Pepperoni";
-    Ingredient ingredientToUpdate = createTestIngredient(name);
+    IngredientEntity ingredientToUpdate = createTestIngredient(name);
     IngredientRequest request = createTestIngredientRequest();
     when(ingredientRepository.findById(ingredientToUpdate.getId()))
         .thenReturn(Optional.of(ingredientToUpdate));
@@ -151,12 +151,12 @@ class IngredientServiceImplTest {
 
     assertThrows(ResourceNotFoundException.class, () -> toTest.delete(notExistId));
 
-    verify(ingredientRepository, never()).delete(any(Ingredient.class));
+    verify(ingredientRepository, never()).delete(any(IngredientEntity.class));
   }
 
   @Test
   void delete_ShouldDelete_WhenIngredientExist() {
-    Ingredient ingredient = createTestIngredient();
+    IngredientEntity ingredient = createTestIngredient();
     when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
 
     toTest.delete(ingredient.getId());

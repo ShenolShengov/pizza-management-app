@@ -18,7 +18,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import shengov.bg.pizzza_management_app.config.BaseIntegrationTest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
-import shengov.bg.pizzza_management_app.ingredient.model.Ingredient;
+import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 import shengov.bg.pizzza_management_app.testutils.IngredientTestUtils;
 import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
@@ -107,7 +107,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     @DisplayName("PUT api/ingredients/{id} -> 401 when user is not authenticated")
     void update_ShouldReturnUnauthorized_WhenIsNotAuthenticated() throws Exception {
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       mockMvcTestUtils
           .performPut(
               INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()),
@@ -120,7 +120,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     @DisplayName("PUT api/ingredients/{id} -> 403 when user is not admin")
     void update_ShouldReturnForbidden_WhenIsNotAdmin() throws Exception {
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       mockMvcTestUtils
           .performPut(
               INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()),
@@ -134,7 +134,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     void update_ShouldReturnBadRequest_WhenDataIsNotValid() throws Exception {
       final String INVALID_NAME = "m";
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       mockMvcTestUtils
           .performPut(
               INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()),
@@ -153,7 +153,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
       final String UPDATED_NAME = "Bread";
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
       IngredientRequest updateRequest = createTestIngredientRequest(UPDATED_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       ingredientTestUtils.saveTestIngredient(updateRequest);
       mockMvcTestUtils
           .performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), updateRequest)
@@ -169,7 +169,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
       final String UPDATED_NAME = "Bread";
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
       IngredientRequest updateRequest = createTestIngredientRequest(UPDATED_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       mockMvcTestUtils
           .performPut(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()), updateRequest)
           .andExpect(status().isOk())
@@ -184,7 +184,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     @Test
     @DisplayName("GET api/ingredients/{id} -> 401 when user is not authenticated")
     void getById_ShouldReturnUnauthorized_WhenUserIsNoAuthenticated() throws Exception {
-      Ingredient ingredient =
+      IngredientEntity ingredient =
           ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
       mockMvcTestUtils
           .performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId().toString()))
@@ -204,7 +204,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     @WithMockUser
     @DisplayName("GET api/ingredients/{id} -> 200 when ingredient exist")
     void getById_ShouldReturnIngredient_WhenExist() throws Exception {
-      Ingredient ingredient =
+      IngredientEntity ingredient =
           ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
       mockMvcTestUtils
           .performGet(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId().toString()))
@@ -246,7 +246,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     @DisplayName("DELETE api/ingredients/{id} -> 401 when user is not authenticated")
     void delete_ShouldReturnUnauthorized_WhenIsNotAuthenticated() throws Exception {
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       mockMvcTestUtils
           .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
           .andExpect(status().isUnauthorized());
@@ -257,7 +257,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     @DisplayName("DELETE api/ingredients/{id} -> 403 when user is not admin")
     void delete_ShouldReturnForbidden_WhenIsNotAdmin() throws Exception {
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       mockMvcTestUtils
           .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
           .andExpect(status().isForbidden());
@@ -277,7 +277,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
     @DisplayName("DELETE api/ingredients/{id} -> 404 when ingredient is not found")
     void delete_ShouldDelete_WhenExist() throws Exception {
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
-      Ingredient ingredient = ingredientTestUtils.saveTestIngredient(request);
+      IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
       mockMvcTestUtils
           .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
           .andExpect(status().isNoContent());

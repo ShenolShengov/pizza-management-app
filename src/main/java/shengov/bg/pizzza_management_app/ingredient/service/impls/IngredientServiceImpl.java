@@ -12,7 +12,7 @@ import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
 import shengov.bg.pizzza_management_app.ingredient.mapper.IngredientMapper;
-import shengov.bg.pizzza_management_app.ingredient.model.Ingredient;
+import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 
@@ -28,15 +28,15 @@ public class IngredientServiceImpl implements IngredientService {
   @PreAuthorize("hasRole('ADMIN')")
   public IngredientResponse create(IngredientRequest request) {
     validateUniqueName(request.name());
-    Ingredient toCreate = mapper.requestToIngredient(request);
-    Ingredient saved = ingredientRepository.save(toCreate);
+    IngredientEntity toCreate = mapper.requestToIngredient(request);
+    IngredientEntity saved = ingredientRepository.save(toCreate);
     return mapper.ingredientToResponse(saved);
   }
 
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   public IngredientResponse update(UUID id, IngredientRequest request) {
-    Ingredient toUpdate = byId(id);
+    IngredientEntity toUpdate = byId(id);
     if (!request.name().equalsIgnoreCase(toUpdate.getName())) validateUniqueName(request.name());
     toUpdate.setName(request.name());
     return mapper.ingredientToResponse(toUpdate);
@@ -58,7 +58,7 @@ public class IngredientServiceImpl implements IngredientService {
     return ingredientRepository.findAll(pageable).map(mapper::ingredientToResponse);
   }
 
-  private Ingredient byId(UUID id) {
+  private IngredientEntity byId(UUID id) {
     return ingredientRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Ingredient", "id", id));

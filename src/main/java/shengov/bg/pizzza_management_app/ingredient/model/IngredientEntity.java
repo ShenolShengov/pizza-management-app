@@ -9,7 +9,7 @@ import shengov.bg.pizzza_management_app.core.exception.model.BaseEntity;
 @Table(name = "ingredients")
 @Getter
 @Setter
-public class Ingredient extends BaseEntity {
+public class IngredientEntity extends BaseEntity {
 
   @Column(nullable = false, unique = true)
   private String name;
