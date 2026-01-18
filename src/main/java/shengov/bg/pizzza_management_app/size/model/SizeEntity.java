@@ -13,6 +13,6 @@ import shengov.bg.pizzza_management_app.core.exception.model.BaseEntity;
 @Setter
 public class SizeEntity extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
-    private String name;
+  @Column(nullable = false, unique = true)
+  private String name;
 }
