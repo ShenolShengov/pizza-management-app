@@ -12,7 +12,7 @@ import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface IngredientMapper {
 
-  IngredientEntity requestToIngredient(IngredientRequest request);
+  IngredientEntity requestToEntity(IngredientRequest request);
 
-  IngredientResponse ingredientToResponse(IngredientEntity ingredient);
+  IngredientResponse entityToResponse(IngredientEntity entity);
 }

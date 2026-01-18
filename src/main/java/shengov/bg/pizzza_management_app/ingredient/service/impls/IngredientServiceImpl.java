@@ -28,9 +28,9 @@ public class IngredientServiceImpl implements IngredientService {
   @PreAuthorize("hasRole('ADMIN')")
   public IngredientResponse create(IngredientRequest request) {
     validateUniqueName(request.name());
-    IngredientEntity toCreate = mapper.requestToIngredient(request);
+    IngredientEntity toCreate = mapper.requestToEntity(request);
     IngredientEntity saved = ingredientRepository.save(toCreate);
-    return mapper.ingredientToResponse(saved);
+    return mapper.entityToResponse(saved);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class IngredientServiceImpl implements IngredientService {
     IngredientEntity toUpdate = byId(id);
     if (!request.name().equalsIgnoreCase(toUpdate.getName())) validateUniqueName(request.name());
     toUpdate.setName(request.name());
-    return mapper.ingredientToResponse(toUpdate);
+    return mapper.entityToResponse(toUpdate);
   }
 
   @Override
@@ -50,12 +50,12 @@ public class IngredientServiceImpl implements IngredientService {
 
   @Override
   public IngredientResponse getById(UUID id) {
-    return mapper.ingredientToResponse(byId(id));
+    return mapper.entityToResponse(byId(id));
   }
 
   @Override
   public Page<IngredientResponse> getAll(Pageable pageable) {
-    return ingredientRepository.findAll(pageable).map(mapper::ingredientToResponse);
+    return ingredientRepository.findAll(pageable).map(mapper::entityToResponse);
   }
 
   private IngredientEntity byId(UUID id) {
