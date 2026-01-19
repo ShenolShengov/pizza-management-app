@@ -3,6 +3,7 @@ package shengov.bg.pizzza_management_app.size.service.impls;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import shengov.bg.pizzza_management_app.size.dto.SizeRequest;
 import shengov.bg.pizzza_management_app.size.dto.SizeResponse;
@@ -22,6 +23,7 @@ public class SizeServiceImpl implements SizeService {
   private final SizeMapper sizeMapper;
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public SizeResponse create(SizeRequest request) {
     if(sizeRepository.existsByName(request.name())) {
         throw new SizeAlreadyExistsException(request.name());
@@ -47,4 +49,6 @@ public class SizeServiceImpl implements SizeService {
   public Page<SizeResponse> getAll(Pageable pageable) {
     return null;
   }
+
+
 }
