@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 
 @Repository
-public interface SizeRepository extends JpaRepository<SizeEntity, UUID> {}
+public interface SizeRepository extends JpaRepository<SizeEntity, UUID> {
+
+    boolean existsByName(String name);
+}
