@@ -50,6 +50,7 @@ public class SizeServiceImpl implements SizeService {
 
   @Override
   public Page<SizeResponse> getAll(Pageable pageable) {
-    return null;
+    return sizeRepository.findAll(pageable)
+            .map(sizeMapper::entityToResponse);
   }
 }
