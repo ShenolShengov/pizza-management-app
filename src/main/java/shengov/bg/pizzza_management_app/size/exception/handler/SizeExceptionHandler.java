@@ -1,4 +1,4 @@
-package shengov.bg.pizzza_management_app.size.constant.handler;
+package shengov.bg.pizzza_management_app.size.exception.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.annotation.Order;
@@ -15,7 +15,7 @@ public class SizeExceptionHandler {
 
   @ExceptionHandler(SizeAlreadyExistsException.class)
   public ResponseEntity<ApiError> handleSizeAlreadyExistException(
-          SizeAlreadyExistsException ex, HttpServletRequest request) {
+      SizeAlreadyExistsException ex, HttpServletRequest request) {
     HttpStatus status = HttpStatus.CONFLICT;
     return ResponseEntity.status(status).body(ApiError.from(ex.getMessage(), status, request));
   }
