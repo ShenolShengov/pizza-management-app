@@ -16,10 +16,10 @@ import shengov.bg.pizzza_management_app.size.service.SizeService;
 @RequiredArgsConstructor
 public class SizeController {
 
-    private final SizeService sizeService;
+  private final SizeService sizeService;
 
-    @PostMapping
-    public ResponseEntity<SizeResponse> create(@RequestBody @Valid SizeRequest request) {
-        return ResponseEntity.ok(sizeService.create(request));
-    }
+  @PostMapping
+  public ResponseEntity<SizeResponse> create(@RequestBody @Valid SizeRequest request) {
+    return ResponseEntity.ok(sizeService.create(request));
+  }
 }

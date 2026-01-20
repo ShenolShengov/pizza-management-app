@@ -1,10 +1,12 @@
 package shengov.bg.pizzza_management_app.size.service.impls;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 import shengov.bg.pizzza_management_app.size.dto.SizeRequest;
 import shengov.bg.pizzza_management_app.size.dto.SizeResponse;
 import shengov.bg.pizzza_management_app.size.exception.SizeAlreadyExistsException;
@@ -12,8 +14,6 @@ import shengov.bg.pizzza_management_app.size.mapper.SizeMapper;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.size.repository.SizeRepository;
 import shengov.bg.pizzza_management_app.size.service.SizeService;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +25,8 @@ public class SizeServiceImpl implements SizeService {
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   public SizeResponse create(SizeRequest request) {
-    if(sizeRepository.existsByName(request.name())) {
-        throw new SizeAlreadyExistsException(request.name());
+    if (sizeRepository.existsByName(request.name())) {
+      throw new SizeAlreadyExistsException(request.name());
     }
     SizeEntity toCreate = sizeMapper.requestToEntity(request);
     return sizeMapper.entityToResponse(sizeRepository.save(toCreate));
@@ -42,13 +42,14 @@ public class SizeServiceImpl implements SizeService {
 
   @Override
   public SizeResponse getById(UUID id) {
-    return null;
+    return sizeRepository
+        .findById(id)
+        .map(sizeMapper::entityToResponse)
+        .orElseThrow(() -> new ResourceNotFoundException("Size", "id", id.toString()));
   }
 
   @Override
   public Page<SizeResponse> getAll(Pageable pageable) {
     return null;
   }
-
-
 }
