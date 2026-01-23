@@ -31,6 +31,7 @@ public class SizeServiceImpl implements SizeService {
   }
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public SizeResponse update(UUID id, SizeRequest request) {
     SizeEntity toUpdate = byId(id);
     if (!request.name().equalsIgnoreCase(toUpdate.getName())) validateUniqueName(request.name());

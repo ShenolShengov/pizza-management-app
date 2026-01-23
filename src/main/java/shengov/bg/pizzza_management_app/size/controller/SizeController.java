@@ -1,7 +1,6 @@
 package shengov.bg.pizzza_management_app.size.controller;
 
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import shengov.bg.pizzza_management_app.size.dto.SizeRequest;
 import shengov.bg.pizzza_management_app.size.dto.SizeResponse;
 import shengov.bg.pizzza_management_app.size.service.SizeService;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/sizes")
@@ -34,5 +35,10 @@ public class SizeController {
   public ResponseEntity<PagedModel<SizeResponse>> getAll(@PageableDefault Pageable pageable) {
     Page<SizeResponse> response = sizeService.getAll(pageable);
     return ResponseEntity.ok(new PagedModel<>(response));
+  }
+
+  @PutMapping("/{id}")
+    public ResponseEntity<SizeResponse> update(@PathVariable UUID id, @RequestBody @Valid SizeRequest request) {
+      return ResponseEntity.ok(sizeService.update(id, request));
   }
 }
