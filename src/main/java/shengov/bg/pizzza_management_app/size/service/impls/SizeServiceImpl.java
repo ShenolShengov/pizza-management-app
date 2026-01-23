@@ -40,7 +40,11 @@ public class SizeServiceImpl implements SizeService {
   }
 
   @Override
-  public void delete(UUID id) {}
+  @PreAuthorize("hasRole('ADMIN')")
+  public void delete(UUID id) {
+    SizeEntity toDelete = byId(id);
+    sizeRepository.delete(toDelete);
+  }
 
   @Override
   public SizeResponse getById(UUID id) {
