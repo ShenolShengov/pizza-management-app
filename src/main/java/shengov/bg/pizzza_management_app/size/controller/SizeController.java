@@ -41,4 +41,10 @@ public class SizeController {
     public ResponseEntity<SizeResponse> update(@PathVariable UUID id, @RequestBody @Valid SizeRequest request) {
       return ResponseEntity.ok(sizeService.update(id, request));
   }
+
+  @DeleteMapping("/{id}")
+    public ResponseEntity<SizeResponse> delete(@PathVariable UUID id) {
+      sizeService.delete(id);
+      return ResponseEntity.noContent().build();
+  }
 }
