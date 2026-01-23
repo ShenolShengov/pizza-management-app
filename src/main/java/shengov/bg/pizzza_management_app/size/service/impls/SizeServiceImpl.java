@@ -25,16 +25,17 @@ public class SizeServiceImpl implements SizeService {
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   public SizeResponse create(SizeRequest request) {
-    if (sizeRepository.existsByName(request.name())) {
-      throw new SizeAlreadyExistsException(request.name());
-    }
+    validateUniqueName(request.name());
     SizeEntity toCreate = sizeMapper.requestToEntity(request);
     return sizeMapper.entityToResponse(sizeRepository.save(toCreate));
   }
 
   @Override
   public SizeResponse update(UUID id, SizeRequest request) {
-    return null;
+    SizeEntity toUpdate = byId(id);
+    if (!request.name().equalsIgnoreCase(toUpdate.getName())) validateUniqueName(request.name());
+    toUpdate.setName(request.name());
+    return sizeMapper.entityToResponse(toUpdate);
   }
 
   @Override
@@ -42,15 +43,23 @@ public class SizeServiceImpl implements SizeService {
 
   @Override
   public SizeResponse getById(UUID id) {
-    return sizeRepository
-        .findById(id)
-        .map(sizeMapper::entityToResponse)
-        .orElseThrow(() -> new ResourceNotFoundException("Size", "id", id.toString()));
+    return sizeMapper.entityToResponse(byId(id));
   }
 
   @Override
   public Page<SizeResponse> getAll(Pageable pageable) {
-    return sizeRepository.findAll(pageable)
-            .map(sizeMapper::entityToResponse);
+    return sizeRepository.findAll(pageable).map(sizeMapper::entityToResponse);
+  }
+
+  private SizeEntity byId(UUID id) {
+    return sizeRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Size", "id", id.toString()));
+  }
+
+  private void validateUniqueName(String name) {
+    if (sizeRepository.existsByName(name)) {
+      throw new SizeAlreadyExistsException(name);
+    }
   }
 }
