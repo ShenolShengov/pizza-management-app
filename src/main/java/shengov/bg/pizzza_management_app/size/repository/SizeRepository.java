@@ -8,5 +8,5 @@ import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 @Repository
 public interface SizeRepository extends JpaRepository<SizeEntity, UUID> {
 
-  boolean existsByName(String name);
+  boolean existsByNameIgnoreCase(String name);
 }

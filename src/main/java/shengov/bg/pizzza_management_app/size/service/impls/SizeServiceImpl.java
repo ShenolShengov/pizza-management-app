@@ -63,7 +63,7 @@ public class SizeServiceImpl implements SizeService {
   }
 
   private void validateUniqueName(String name) {
-    if (sizeRepository.existsByName(name)) {
+    if (sizeRepository.existsByNameIgnoreCase(name)) {
       throw new SizeAlreadyExistsException(name);
     }
   }
