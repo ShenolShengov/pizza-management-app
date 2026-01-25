@@ -1,6 +1,7 @@
 package shengov.bg.pizzza_management_app.size.controller;
 
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,11 +9,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import shengov.bg.pizzza_management_app.size.dto.SizeRequest;
 import shengov.bg.pizzza_management_app.size.dto.SizeResponse;
 import shengov.bg.pizzza_management_app.size.service.SizeService;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/sizes")
@@ -23,7 +23,10 @@ public class SizeController {
 
   @PostMapping
   public ResponseEntity<SizeResponse> create(@RequestBody @Valid SizeRequest request) {
-    return ResponseEntity.ok(sizeService.create(request));
+    SizeResponse response = sizeService.create(request);
+    return ResponseEntity.created(
+            ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").build(response.id()))
+        .body(response);
   }
 
   @GetMapping("/{id}")
@@ -38,13 +41,14 @@ public class SizeController {
   }
 
   @PutMapping("/{id}")
-    public ResponseEntity<SizeResponse> update(@PathVariable UUID id, @RequestBody @Valid SizeRequest request) {
-      return ResponseEntity.ok(sizeService.update(id, request));
+  public ResponseEntity<SizeResponse> update(
+      @PathVariable UUID id, @RequestBody @Valid SizeRequest request) {
+    return ResponseEntity.ok(sizeService.update(id, request));
   }
 
   @DeleteMapping("/{id}")
-    public ResponseEntity<SizeResponse> delete(@PathVariable UUID id) {
-      sizeService.delete(id);
-      return ResponseEntity.noContent().build();
+  public ResponseEntity<SizeResponse> delete(@PathVariable UUID id) {
+    sizeService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }
