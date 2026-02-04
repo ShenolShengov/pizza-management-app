@@ -38,4 +38,5 @@ public class PizzaEntity extends BaseEntity {
         this.ingredients = new HashSet<>();
         this.sizes = new HashSet<>();
     }
+
 }
