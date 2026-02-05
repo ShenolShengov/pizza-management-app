@@ -3,12 +3,14 @@ package shengov.bg.pizzza_management_app.pizza.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 
 @Entity
 @Table(name = "pizza_sizes")
 @Getter
+@NoArgsConstructor
 public class PizzaSize {
 
   @EmbeddedId private PizzaSizeId pizzaSizeId;
