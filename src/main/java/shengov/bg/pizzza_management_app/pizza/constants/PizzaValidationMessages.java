@@ -1,9 +1,9 @@
 package shengov.bg.pizzza_management_app.pizza.constants;
 
-public final class PizzaConstants {
+public final class PizzaValidationMessages {
 
-  private PizzaConstants() {
-    throw new IllegalStateException("Utility class");
+  private PizzaValidationMessages() {
+    throw new IllegalStateException("Validation messages class");
   }
 
   public static final String NAME_REQUIRED = "Pizza name is required";
