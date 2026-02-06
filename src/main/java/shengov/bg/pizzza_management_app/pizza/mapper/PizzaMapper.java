@@ -1,0 +1,18 @@
+package shengov.bg.pizzza_management_app.pizza.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import shengov.bg.pizzza_management_app.pizza.dto.PizzaRequest;
+import shengov.bg.pizzza_management_app.pizza.dto.PizzaResponse;
+import shengov.bg.pizzza_management_app.pizza.model.PizzaEntity;
+
+@Mapper(
+    componentModel = MappingConstants.ComponentModel.SPRING,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface PizzaMapper {
+
+  PizzaEntity requestToEntity(PizzaRequest request);
+
+  PizzaResponse entityToResponse(PizzaEntity entity);
+}
