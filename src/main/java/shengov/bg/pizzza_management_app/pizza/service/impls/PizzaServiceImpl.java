@@ -3,6 +3,7 @@ package shengov.bg.pizzza_management_app.pizza.service.impls;
 import java.awt.print.Pageable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
@@ -12,7 +13,7 @@ import shengov.bg.pizzza_management_app.pizza.repository.PizzaRepository;
 import shengov.bg.pizzza_management_app.pizza.service.PizzaService;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PizzaServiceImpl implements PizzaService {
 
   private final PizzaRepository pizzaRepository;
