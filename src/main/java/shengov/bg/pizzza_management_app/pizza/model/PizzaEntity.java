@@ -1,6 +1,8 @@
 package shengov.bg.pizzza_management_app.pizza.model;
 
 import jakarta.persistence.*;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -10,14 +12,14 @@ import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 
 @Entity
 @Table(name = "pizzas")
-@Getter
 public class PizzaEntity extends BaseEntity {
 
   @Column(nullable = false, unique = true)
+  @Getter
   @Setter
   private String name;
 
-  @Column @Setter private String description;
+  @Column @Getter @Setter private String description;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
@@ -32,6 +34,34 @@ public class PizzaEntity extends BaseEntity {
       cascade = CascadeType.ALL,
       orphanRemoval = true)
   private Set<PizzaSize> sizes;
+
+  public Set<IngredientEntity> getIngredients() {
+    return Collections.unmodifiableSet(ingredients);
+  }
+
+  public void addIngredient(IngredientEntity ingredientEntity) {
+    this.ingredients.add(ingredientEntity);
+  }
+
+  public void addIngredients(Collection<IngredientEntity> ingredients) {
+    this.ingredients.addAll(ingredients);
+  }
+
+  public void clearIngredients() {
+    this.ingredients.clear();
+  }
+
+  public Set<PizzaSize> getSizes() {
+    return Collections.unmodifiableSet(sizes);
+  }
+
+  public void addSize(PizzaSize pizzaSize) {
+    this.sizes.add(pizzaSize);
+  }
+
+  public void removeSize(PizzaSize pizzaSize) {
+    this.sizes.remove(pizzaSize);
+  }
 
   public PizzaEntity() {
     this.ingredients = new HashSet<>();

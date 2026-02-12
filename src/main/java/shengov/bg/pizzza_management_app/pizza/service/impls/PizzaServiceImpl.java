@@ -49,7 +49,7 @@ public class PizzaServiceImpl implements PizzaService {
     List<IngredientEntity> ingredients = fetchIngredients(pizzaRequest.ingredientIds());
     validateEntityIds(pizzaRequest.ingredientIds(), ingredients, "Ingredients");
 
-    pizzaEntity.getIngredients().addAll(ingredients);
+    pizzaEntity.addIngredients(ingredients);
 
     List<UUID> sizeIds = pizzaRequest.sizes().stream().map(PizzaSizeRequest::id).toList();
 
@@ -61,7 +61,7 @@ public class PizzaServiceImpl implements PizzaService {
     for (PizzaSizeRequest sizeRequest : pizzaRequest.sizes()) {
       SizeEntity sizeEntity = sizeMap.get(sizeRequest.id());
       PizzaSize pizzaSize = new PizzaSize(pizzaEntity, sizeEntity, sizeRequest.price());
-      pizzaEntity.getSizes().add(pizzaSize);
+      pizzaEntity.addSize(pizzaSize);
     }
     PizzaEntity saved = pizzaRepository.save(pizzaEntity);
     return pizzaMapper.entityToResponse(saved);
