@@ -1,10 +1,9 @@
 package shengov.bg.pizzza_management_app.pizza.service.impls;
 
-import java.awt.print.Pageable;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaResponse;
@@ -29,6 +28,6 @@ public class PizzaServiceImpl implements PizzaService {
 
   @Override
   public Page<PizzaResponse> getAll(Pageable pageable) {
-    return null;
+    return pizzaRepository.findAll(pageable).map(pizzaMapper::entityToResponse);
   }
 }
