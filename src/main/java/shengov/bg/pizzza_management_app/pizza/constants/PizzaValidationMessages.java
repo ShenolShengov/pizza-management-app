@@ -6,6 +6,8 @@ public final class PizzaValidationMessages {
     throw new IllegalStateException("Validation messages class");
   }
 
+  public static final String PIZZA_EXISTS = "Ingredient with name %s already exist";
+
   public static final String NAME_REQUIRED = "Pizza name is required";
 
   public static final String NAME_SIZE = "Pizza name must be between 3 and 40 characters";
