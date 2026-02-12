@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import shengov.bg.pizzza_management_app.core.exception.model.BaseEntity;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 
@@ -26,6 +27,7 @@ public class PizzaEntity extends BaseEntity {
       name = "pizza_ingredients",
       joinColumns = @JoinColumn(name = "pizza_id"),
       inverseJoinColumns = @JoinColumn(name = "ingredient_id"))
+  @BatchSize(size = 20)
   private Set<IngredientEntity> ingredients;
 
   @OneToMany(
@@ -33,15 +35,8 @@ public class PizzaEntity extends BaseEntity {
       mappedBy = "pizza",
       cascade = CascadeType.ALL,
       orphanRemoval = true)
+  @BatchSize(size = 20)
   private Set<PizzaSize> sizes;
-
-  public Set<IngredientEntity> getIngredients() {
-    return Collections.unmodifiableSet(ingredients);
-  }
-
-  public void addIngredient(IngredientEntity ingredientEntity) {
-    this.ingredients.add(ingredientEntity);
-  }
 
   public void addIngredients(Collection<IngredientEntity> ingredients) {
     this.ingredients.addAll(ingredients);
@@ -59,8 +54,8 @@ public class PizzaEntity extends BaseEntity {
     this.sizes.add(pizzaSize);
   }
 
-  public void removeSize(PizzaSize pizzaSize) {
-    this.sizes.remove(pizzaSize);
+  public void removeSizes(Collection<PizzaSize> pizzaSizes) {
+    this.sizes.removeAll(pizzaSizes);
   }
 
   public PizzaEntity() {
