@@ -33,6 +33,5 @@ public class PizzaSize {
     this.pizza = pizzaEntity;
     this.size = sizeEntity;
     this.price = price;
-    this.pizzaSizeId = new PizzaSizeId(pizzaEntity.getId(), sizeEntity.getId());
   }
 }
