@@ -50,7 +50,7 @@ public class PizzaServiceImpl implements PizzaService {
   @Override
   @Transactional
   public PizzaResponse update(UUID id, PizzaRequest pizzaRequest) {
-    PizzaEntity pizzaEntity = byId(id);
+    PizzaEntity pizzaEntity = byIdWithDetails(id);
     if(!pizzaRequest.name().equalsIgnoreCase(pizzaEntity.getName())) {
       validateNameUniqueness(pizzaRequest.name());
     }
@@ -130,7 +130,7 @@ public class PizzaServiceImpl implements PizzaService {
 
   @Override
   public PizzaResponse getById(UUID id) {
-    return pizzaMapper.entityToResponse(byId(id));
+    return pizzaMapper.entityToResponse(byIdWithDetails(id));
   }
 
   private PizzaEntity byId(UUID id) {
@@ -138,6 +138,13 @@ public class PizzaServiceImpl implements PizzaService {
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
   }
+
+  private PizzaEntity byIdWithDetails(UUID id) {
+    return pizzaRepository
+            .findWithDetailsById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
+  }
+
   private void validateNameUniqueness(String name) {
     if (pizzaRepository.existsByNameIgnoreCase(name)) {
       throw new PizzaAlreadyExistException(name);
