@@ -9,7 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
-import shengov.bg.pizzza_management_app.core.exception.model.BaseEntity;
+import shengov.bg.pizzza_management_app.core.model.BaseEntity;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaRequest;

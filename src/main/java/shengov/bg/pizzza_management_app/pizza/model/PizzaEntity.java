@@ -8,7 +8,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
-import shengov.bg.pizzza_management_app.core.exception.model.BaseEntity;
+import shengov.bg.pizzza_management_app.core.model.BaseEntity;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 
 @Entity

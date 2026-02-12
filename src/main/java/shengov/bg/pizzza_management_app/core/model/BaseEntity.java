@@ -1,4 +1,4 @@
-package shengov.bg.pizzza_management_app.core.exception.model;
+package shengov.bg.pizzza_management_app.core.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;

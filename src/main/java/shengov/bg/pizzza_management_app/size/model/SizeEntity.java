@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import shengov.bg.pizzza_management_app.core.exception.model.BaseEntity;
+import shengov.bg.pizzza_management_app.core.model.BaseEntity;
 
 @Entity
 @Table(name = "size")
