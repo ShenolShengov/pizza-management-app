@@ -1,4 +1,4 @@
-package shengov.bg.pizzza_management_app.ingredient.contorller;
+package shengov.bg.pizzza_management_app.ingredient.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;

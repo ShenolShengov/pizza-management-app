@@ -1,4 +1,4 @@
-package shengov.bg.pizzza_management_app.ingredient.contorller;
+package shengov.bg.pizzza_management_app.ingredient.controller;
 
 import jakarta.validation.Valid;
 import java.util.UUID;
