@@ -10,6 +10,8 @@ public interface PizzaService {
 
   PizzaResponse create(PizzaRequest pizzaRequest);
 
+  PizzaResponse update(UUID id, PizzaRequest pizzaRequest);
+
   PizzaResponse getById(UUID id);
 
   Page<PizzaResponse> getAll(Pageable pageable);

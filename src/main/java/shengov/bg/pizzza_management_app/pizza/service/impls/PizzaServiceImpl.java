@@ -1,15 +1,10 @@
 package shengov.bg.pizzza_management_app.pizza.service.impls;
 
-import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
 import shengov.bg.pizzza_management_app.core.exception.model.BaseEntity;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
@@ -26,8 +21,12 @@ import shengov.bg.pizzza_management_app.pizza.service.PizzaService;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.size.repository.SizeRepository;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PizzaServiceImpl implements PizzaService {
 
   private final PizzaRepository pizzaRepository;
@@ -38,41 +37,83 @@ public class PizzaServiceImpl implements PizzaService {
   @Override
   @Transactional
   public PizzaResponse create(PizzaRequest pizzaRequest) {
-    if (pizzaRepository.existsByNameIgnoreCase(pizzaRequest.name())) {
-      throw new PizzaAlreadyExistException(pizzaRequest.name());
+    validateNameUniqueness(pizzaRequest.name());
+
+    PizzaEntity pizzaEntity = pizzaMapper.requestToEntity(pizzaRequest);
+    updateIngredients(pizzaEntity, pizzaRequest.ingredientIds());
+    updateSizes(pizzaEntity, pizzaRequest.sizes());
+
+    PizzaEntity saved = pizzaRepository.save(pizzaEntity);
+    return pizzaMapper.entityToResponse(saved);
+  }
+
+  @Override
+  @Transactional
+  public PizzaResponse update(UUID id, PizzaRequest pizzaRequest) {
+    PizzaEntity pizzaEntity = byId(id);
+    if(!pizzaRequest.name().equalsIgnoreCase(pizzaEntity.getName())) {
+      validateNameUniqueness(pizzaRequest.name());
     }
 
-    PizzaEntity pizzaEntity = new PizzaEntity();
     pizzaEntity.setName(pizzaRequest.name());
     pizzaEntity.setDescription(pizzaRequest.description());
 
-    List<IngredientEntity> ingredients = fetchIngredients(pizzaRequest.ingredientIds());
-    validateEntityIds(pizzaRequest.ingredientIds(), ingredients, "Ingredients");
+    updateIngredients(pizzaEntity, pizzaRequest.ingredientIds());
+    updateSizes(pizzaEntity, pizzaRequest.sizes());
 
+    return pizzaMapper.entityToResponse(pizzaEntity);
+  }
+
+  private void updateIngredients(PizzaEntity pizzaEntity, List<UUID> ingredientIds) {
+    List<IngredientEntity> ingredients = fetchIngredients(ingredientIds);
+    validateEntityIds(ingredientIds, ingredients, "Ingredients");
+    pizzaEntity.clearIngredients();
     pizzaEntity.addIngredients(ingredients);
+  }
 
-    List<UUID> sizeIds = pizzaRequest.sizes().stream().map(PizzaSizeRequest::id).toList();
+  private void updateSizes(PizzaEntity pizzaEntity, List<PizzaSizeRequest> sizes) {
+    List<UUID> sizeIds = sizes.stream().map(PizzaSizeRequest::id).toList();
+    Map<UUID, SizeEntity> sizesById = fetchSizesAsMap(sizeIds);
+    validateEntityIds(sizeIds, sizesById.values(), "Sizes");
 
-    List<SizeEntity> sizes = sizeRepository.findAllById(sizeIds);
-    validateEntityIds(pizzaRequest.ingredientIds(), ingredients, "Sizes");
+    List<PizzaSize> removedSizes = pizzaEntity.getSizes().stream()
+            .filter(ps -> !sizeIds.contains(ps.getSize().getId()))
+            .toList();
+    pizzaEntity.removeSizes(removedSizes);
 
-    Map<UUID, SizeEntity> sizeMap =
-        sizes.stream().collect(Collectors.toMap(SizeEntity::getId, size -> size));
-    for (PizzaSizeRequest sizeRequest : pizzaRequest.sizes()) {
-      SizeEntity sizeEntity = sizeMap.get(sizeRequest.id());
-      PizzaSize pizzaSize = new PizzaSize(pizzaEntity, sizeEntity, sizeRequest.price());
-      pizzaEntity.addSize(pizzaSize);
+
+    Map<UUID, PizzaSize> currentSizes = pizzaEntity.getSizes().stream()
+            .collect(Collectors.toMap(ps -> ps.getSize().getId(), ps -> ps));
+
+    for (PizzaSizeRequest sizeRequest : sizes) {
+      PizzaSize existing = currentSizes.get(sizeRequest.id());
+
+      if (existing != null) {
+        existing.setPrice(sizeRequest.price());
+      } else  {
+        SizeEntity sizeEntity = sizesById.get(sizeRequest.id());
+        pizzaEntity.addSize(new PizzaSize(pizzaEntity, sizeEntity, sizeRequest.price()));
+      }
     }
-    PizzaEntity saved = pizzaRepository.save(pizzaEntity);
-    return pizzaMapper.entityToResponse(saved);
   }
 
   private List<IngredientEntity> fetchIngredients(List<UUID> ingredientIds) {
     return ingredientRepository.findAllById(ingredientIds);
   }
 
+  private Map<UUID, SizeEntity> fetchSizesAsMap(List<UUID> sizeIds) {
+    return sizeRepository.findAllById(sizeIds).stream()
+            .collect(Collectors.toMap(SizeEntity::getId, s -> s));
+  }
+
   private <T extends BaseEntity> void validateEntityIds(
-      List<UUID> requestedIds, List<T> foundEntities, String resourceName) {
+          Collection<UUID> requestedIds, Collection<T> foundEntities, String resourceName) {
+
+    long distinctCount = requestedIds.stream().distinct().count();
+    if (requestedIds.size() != distinctCount) {
+      throw new IllegalArgumentException("Duplicate " + resourceName.toLowerCase() + " in request");
+    }
+
     if (foundEntities.size() == requestedIds.size()) {
       return;
     }
@@ -89,10 +130,18 @@ public class PizzaServiceImpl implements PizzaService {
 
   @Override
   public PizzaResponse getById(UUID id) {
+    return pizzaMapper.entityToResponse(byId(id));
+  }
+
+  private PizzaEntity byId(UUID id) {
     return pizzaRepository
-        .findById(id)
-        .map(pizzaMapper::entityToResponse)
-        .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
+  }
+  private void validateNameUniqueness(String name) {
+    if (pizzaRepository.existsByNameIgnoreCase(name)) {
+      throw new PizzaAlreadyExistException(name);
+    }
   }
 
   @Override
