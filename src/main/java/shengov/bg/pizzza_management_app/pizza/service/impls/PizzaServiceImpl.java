@@ -1,5 +1,7 @@
 package shengov.bg.pizzza_management_app.pizza.service.impls;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +22,6 @@ import shengov.bg.pizzza_management_app.pizza.repository.PizzaRepository;
 import shengov.bg.pizzza_management_app.pizza.service.PizzaService;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.size.repository.SizeRepository;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +50,7 @@ public class PizzaServiceImpl implements PizzaService {
   @Transactional
   public PizzaResponse update(UUID id, PizzaRequest pizzaRequest) {
     PizzaEntity pizzaEntity = byIdWithDetails(id);
-    if(!pizzaRequest.name().equalsIgnoreCase(pizzaEntity.getName())) {
+    if (!pizzaRequest.name().equalsIgnoreCase(pizzaEntity.getName())) {
       validateNameUniqueness(pizzaRequest.name());
     }
 
@@ -76,13 +75,14 @@ public class PizzaServiceImpl implements PizzaService {
     Map<UUID, SizeEntity> sizesById = fetchSizesAsMap(sizeIds);
     validateEntityIds(sizeIds, sizesById.values(), "Sizes");
 
-    List<PizzaSize> removedSizes = pizzaEntity.getSizes().stream()
+    List<PizzaSize> removedSizes =
+        pizzaEntity.getSizes().stream()
             .filter(ps -> !sizeIds.contains(ps.getSize().getId()))
             .toList();
     pizzaEntity.removeSizes(removedSizes);
 
-
-    Map<UUID, PizzaSize> currentSizes = pizzaEntity.getSizes().stream()
+    Map<UUID, PizzaSize> currentSizes =
+        pizzaEntity.getSizes().stream()
             .collect(Collectors.toMap(ps -> ps.getSize().getId(), ps -> ps));
 
     for (PizzaSizeRequest sizeRequest : sizes) {
@@ -90,7 +90,7 @@ public class PizzaServiceImpl implements PizzaService {
 
       if (existing != null) {
         existing.setPrice(sizeRequest.price());
-      } else  {
+      } else {
         SizeEntity sizeEntity = sizesById.get(sizeRequest.id());
         pizzaEntity.addSize(new PizzaSize(pizzaEntity, sizeEntity, sizeRequest.price()));
       }
@@ -103,11 +103,11 @@ public class PizzaServiceImpl implements PizzaService {
 
   private Map<UUID, SizeEntity> fetchSizesAsMap(List<UUID> sizeIds) {
     return sizeRepository.findAllById(sizeIds).stream()
-            .collect(Collectors.toMap(SizeEntity::getId, s -> s));
+        .collect(Collectors.toMap(SizeEntity::getId, s -> s));
   }
 
   private <T extends BaseEntity> void validateEntityIds(
-          Collection<UUID> requestedIds, Collection<T> foundEntities, String resourceName) {
+      Collection<UUID> requestedIds, Collection<T> foundEntities, String resourceName) {
 
     long distinctCount = requestedIds.stream().distinct().count();
     if (requestedIds.size() != distinctCount) {
@@ -135,14 +135,14 @@ public class PizzaServiceImpl implements PizzaService {
 
   private PizzaEntity byId(UUID id) {
     return pizzaRepository
-            .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
   }
 
   private PizzaEntity byIdWithDetails(UUID id) {
     return pizzaRepository
-            .findWithDetailsById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
+        .findWithDetailsById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
   }
 
   private void validateNameUniqueness(String name) {
