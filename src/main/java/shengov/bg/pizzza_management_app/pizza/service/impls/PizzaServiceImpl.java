@@ -66,6 +66,14 @@ public class PizzaServiceImpl implements PizzaService {
     return pizzaMapper.entityToResponse(pizzaEntity);
   }
 
+  @Override
+  @Transactional
+  @PreAuthorize("hasRole('ADMIN')")
+  public void delete(UUID id) {
+    PizzaEntity pizzaEntity = byId(id);
+    pizzaRepository.delete(pizzaEntity);
+  }
+
   private void updateIngredients(PizzaEntity pizzaEntity, List<UUID> ingredientIds) {
     List<IngredientEntity> ingredients = fetchIngredients(ingredientIds);
     validateEntityIds(ingredientIds, ingredients, "Ingredients");

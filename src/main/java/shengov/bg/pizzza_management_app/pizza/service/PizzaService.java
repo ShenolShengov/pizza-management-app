@@ -12,6 +12,8 @@ public interface PizzaService {
 
   PizzaResponse update(UUID id, PizzaRequest pizzaRequest);
 
+  void delete(UUID id);
+
   PizzaResponse getById(UUID id);
 
   Page<PizzaResponse> getAll(Pageable pageable);
