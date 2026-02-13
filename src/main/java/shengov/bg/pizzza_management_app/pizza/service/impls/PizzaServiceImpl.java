@@ -15,7 +15,7 @@ import shengov.bg.pizzza_management_app.ingredient.repository.IngredientReposito
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaRequest;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaResponse;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaSizeRequest;
-import shengov.bg.pizzza_management_app.pizza.exception.PizzaAlreadyExistException;
+import shengov.bg.pizzza_management_app.pizza.exception.PizzaAlreadyExistsException;
 import shengov.bg.pizzza_management_app.pizza.mapper.PizzaMapper;
 import shengov.bg.pizzza_management_app.pizza.model.PizzaEntity;
 import shengov.bg.pizzza_management_app.pizza.model.PizzaSize;
@@ -37,12 +37,12 @@ public class PizzaServiceImpl implements PizzaService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
-  public PizzaResponse create(PizzaRequest pizzaRequest) {
-    validateNameUniqueness(pizzaRequest.name());
+  public PizzaResponse create(PizzaRequest request) {
+    validateUniqueName(request.name());
 
-    PizzaEntity pizzaEntity = pizzaMapper.requestToEntity(pizzaRequest);
-    updateIngredients(pizzaEntity, pizzaRequest.ingredientIds());
-    updateSizes(pizzaEntity, pizzaRequest.sizes());
+    PizzaEntity pizzaEntity = pizzaMapper.requestToEntity(request);
+    updateIngredients(pizzaEntity, request.ingredientIds());
+    updateSizes(pizzaEntity, request.sizes());
 
     PizzaEntity saved = pizzaRepository.save(pizzaEntity);
     return pizzaMapper.entityToResponse(saved);
@@ -51,17 +51,17 @@ public class PizzaServiceImpl implements PizzaService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
-  public PizzaResponse update(UUID id, PizzaRequest pizzaRequest) {
+  public PizzaResponse update(UUID id, PizzaRequest request) {
     PizzaEntity pizzaEntity = byIdWithDetails(id);
-    if (!pizzaRequest.name().equalsIgnoreCase(pizzaEntity.getName())) {
-      validateNameUniqueness(pizzaRequest.name());
+    if (!request.name().equalsIgnoreCase(pizzaEntity.getName())) {
+      validateUniqueName(request.name());
     }
 
-    pizzaEntity.setName(pizzaRequest.name());
-    pizzaEntity.setDescription(pizzaRequest.description());
+    pizzaEntity.setName(request.name());
+    pizzaEntity.setDescription(request.description());
 
-    updateIngredients(pizzaEntity, pizzaRequest.ingredientIds());
-    updateSizes(pizzaEntity, pizzaRequest.sizes());
+    updateIngredients(pizzaEntity, request.ingredientIds());
+    updateSizes(pizzaEntity, request.sizes());
 
     return pizzaMapper.entityToResponse(pizzaEntity);
   }
@@ -72,6 +72,56 @@ public class PizzaServiceImpl implements PizzaService {
   public void delete(UUID id) {
     PizzaEntity pizzaEntity = byId(id);
     pizzaRepository.delete(pizzaEntity);
+  }
+
+  @Override
+  public PizzaResponse getById(UUID id) {
+    return pizzaMapper.entityToResponse(byIdWithDetails(id));
+  }
+
+  @Override
+  public Page<PizzaResponse> getAll(Pageable pageable) {
+    return pizzaRepository.findAll(pageable).map(pizzaMapper::entityToResponse);
+  }
+
+  private PizzaEntity byId(UUID id) {
+    return pizzaRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
+  }
+
+  private PizzaEntity byIdWithDetails(UUID id) {
+    return pizzaRepository
+        .findWithDetailsById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
+  }
+
+  private void validateUniqueName(String name) {
+    if (pizzaRepository.existsByNameIgnoreCase(name)) {
+      throw new PizzaAlreadyExistsException(name);
+    }
+  }
+
+  private <T extends BaseEntity> void validateEntityIds(
+      Collection<UUID> requestedIds, Collection<T> foundEntities, String resourceName) {
+
+    long distinctCount = requestedIds.stream().distinct().count();
+    if (requestedIds.size() != distinctCount) {
+      throw new IllegalArgumentException("Duplicate " + resourceName.toLowerCase() + " in request");
+    }
+
+    if (foundEntities.size() == requestedIds.size()) {
+      return;
+    }
+
+    Set<UUID> foundIds = foundEntities.stream().map(BaseEntity::getId).collect(Collectors.toSet());
+
+    List<UUID> missingIds = requestedIds.stream().filter(id -> !foundIds.contains(id)).toList();
+
+    throw new ResourceNotFoundException(
+        resourceName,
+        "ids",
+        missingIds.stream().map(UUID::toString).collect(Collectors.joining(", ")));
   }
 
   private void updateIngredients(PizzaEntity pizzaEntity, List<UUID> ingredientIds) {
@@ -115,55 +165,5 @@ public class PizzaServiceImpl implements PizzaService {
   private Map<UUID, SizeEntity> fetchSizesAsMap(List<UUID> sizeIds) {
     return sizeRepository.findAllById(sizeIds).stream()
         .collect(Collectors.toMap(SizeEntity::getId, s -> s));
-  }
-
-  private <T extends BaseEntity> void validateEntityIds(
-      Collection<UUID> requestedIds, Collection<T> foundEntities, String resourceName) {
-
-    long distinctCount = requestedIds.stream().distinct().count();
-    if (requestedIds.size() != distinctCount) {
-      throw new IllegalArgumentException("Duplicate " + resourceName.toLowerCase() + " in request");
-    }
-
-    if (foundEntities.size() == requestedIds.size()) {
-      return;
-    }
-
-    Set<UUID> foundIds = foundEntities.stream().map(BaseEntity::getId).collect(Collectors.toSet());
-
-    List<UUID> missingIds = requestedIds.stream().filter(id -> !foundIds.contains(id)).toList();
-
-    throw new ResourceNotFoundException(
-        resourceName,
-        "ids",
-        missingIds.stream().map(UUID::toString).collect(Collectors.joining(", ")));
-  }
-
-  @Override
-  public PizzaResponse getById(UUID id) {
-    return pizzaMapper.entityToResponse(byIdWithDetails(id));
-  }
-
-  private PizzaEntity byId(UUID id) {
-    return pizzaRepository
-        .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
-  }
-
-  private PizzaEntity byIdWithDetails(UUID id) {
-    return pizzaRepository
-        .findWithDetailsById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Pizza", "id", id.toString()));
-  }
-
-  private void validateNameUniqueness(String name) {
-    if (pizzaRepository.existsByNameIgnoreCase(name)) {
-      throw new PizzaAlreadyExistException(name);
-    }
-  }
-
-  @Override
-  public Page<PizzaResponse> getAll(Pageable pageable) {
-    return pizzaRepository.findAll(pageable).map(pizzaMapper::entityToResponse);
   }
 }

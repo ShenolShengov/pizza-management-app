@@ -3,10 +3,10 @@ package shengov.bg.pizzza_management_app.ingredient.constant;
 public final class IngredientValidationMessages {
 
   private IngredientValidationMessages() {
-    throw new IllegalCallerException("Validation messages class");
+    throw new IllegalStateException("Validation messages class");
   }
 
-  public static final String INGREDIENT_EXISTS = "Ingredient with name %s already exist";
+  public static final String ALREADY_EXISTS = "Ingredient with name '%s' already exists";
 
   public static final String NAME_REQUIRED = "Ingredient name is required";
 

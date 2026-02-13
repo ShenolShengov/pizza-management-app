@@ -1,4 +1,4 @@
-package shengov.bg.pizzza_management_app.pizza.constants;
+package shengov.bg.pizzza_management_app.pizza.constant;
 
 public final class PizzaValidationMessages {
 
@@ -6,7 +6,7 @@ public final class PizzaValidationMessages {
     throw new IllegalStateException("Validation messages class");
   }
 
-  public static final String PIZZA_EXISTS = "Ingredient with name %s already exist";
+  public static final String ALREADY_EXISTS = "Pizza with name '%s' already exists";
 
   public static final String NAME_REQUIRED = "Pizza name is required";
 

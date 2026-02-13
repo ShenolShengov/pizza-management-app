@@ -2,7 +2,7 @@ package shengov.bg.pizzza_management_app.ingredient.controller;
 
 import jakarta.validation.Valid;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
@@ -15,7 +15,7 @@ import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 
 @RestController
 @RequestMapping("/api/ingredients")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class IngredientController {
 
   private final IngredientService ingredientService;
@@ -27,7 +27,7 @@ public class IngredientController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<IngredientResponse> byId(@PathVariable UUID id) {
+  public ResponseEntity<IngredientResponse> getById(@PathVariable UUID id) {
     return ResponseEntity.ok(ingredientService.getById(id));
   }
 

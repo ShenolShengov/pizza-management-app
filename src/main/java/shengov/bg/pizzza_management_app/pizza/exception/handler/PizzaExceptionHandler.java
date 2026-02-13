@@ -7,15 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import shengov.bg.pizzza_management_app.core.exception.ApiError;
-import shengov.bg.pizzza_management_app.pizza.exception.PizzaAlreadyExistException;
+import shengov.bg.pizzza_management_app.pizza.exception.PizzaAlreadyExistsException;
 
 @RestControllerAdvice
 @Order(1)
 public class PizzaExceptionHandler {
 
-  @ExceptionHandler(PizzaAlreadyExistException.class)
-  public ResponseEntity<ApiError> handlePizzaAlreadyExistException(
-      PizzaAlreadyExistException ex, HttpServletRequest request) {
+  @ExceptionHandler(PizzaAlreadyExistsException.class)
+  public ResponseEntity<ApiError> handlePizzaAlreadyExistsException(
+      PizzaAlreadyExistsException ex, HttpServletRequest request) {
     HttpStatus status = HttpStatus.CONFLICT;
     return ResponseEntity.status(status).body(ApiError.from(ex.getMessage(), status, request));
   }

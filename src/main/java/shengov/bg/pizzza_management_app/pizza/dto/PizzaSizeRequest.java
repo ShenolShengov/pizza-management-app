@@ -4,7 +4,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
-import shengov.bg.pizzza_management_app.pizza.constants.PizzaValidationMessages;
+import shengov.bg.pizzza_management_app.pizza.constant.PizzaValidationMessages;
 
 public record PizzaSizeRequest(
     @NotNull(message = PizzaValidationMessages.SIZE_ID_REQUIRED) UUID id,

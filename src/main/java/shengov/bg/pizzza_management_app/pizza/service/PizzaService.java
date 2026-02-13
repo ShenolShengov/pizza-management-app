@@ -8,9 +8,9 @@ import shengov.bg.pizzza_management_app.pizza.dto.PizzaResponse;
 
 public interface PizzaService {
 
-  PizzaResponse create(PizzaRequest pizzaRequest);
+  PizzaResponse create(PizzaRequest request);
 
-  PizzaResponse update(UUID id, PizzaRequest pizzaRequest);
+  PizzaResponse update(UUID id, PizzaRequest request);
 
   void delete(UUID id);
 

@@ -2,7 +2,7 @@ package shengov.bg.pizzza_management_app.ingredient.service.impls;
 
 import jakarta.transaction.Transactional;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +17,7 @@ import shengov.bg.pizzza_management_app.ingredient.repository.IngredientReposito
 import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 public class IngredientServiceImpl implements IngredientService {
 

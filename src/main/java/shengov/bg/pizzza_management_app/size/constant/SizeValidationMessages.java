@@ -3,10 +3,10 @@ package shengov.bg.pizzza_management_app.size.constant;
 public final class SizeValidationMessages {
 
   private SizeValidationMessages() {
-    throw new IllegalCallerException("Validation messages class");
+    throw new IllegalStateException("Validation messages class");
   }
 
-  public static final String SIZE_EXIST = "Size with name %s already exist";
+  public static final String ALREADY_EXISTS = "Size with name '%s' already exists";
 
   public static final String NAME_REQUIRED = "Size name is required";
 

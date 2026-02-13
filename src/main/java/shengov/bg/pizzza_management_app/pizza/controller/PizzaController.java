@@ -21,13 +21,13 @@ public class PizzaController {
 
   private final PizzaService pizzaService;
 
-  @GetMapping("{id}")
-  public ResponseEntity<PizzaResponse> byId(@PathVariable UUID id) {
+  @GetMapping("/{id}")
+  public ResponseEntity<PizzaResponse> getById(@PathVariable UUID id) {
     return ResponseEntity.ok(pizzaService.getById(id));
   }
 
   @GetMapping
-  public ResponseEntity<PagedModel<PizzaResponse>> all(@PageableDefault Pageable pageable) {
+  public ResponseEntity<PagedModel<PizzaResponse>> getAll(@PageableDefault Pageable pageable) {
     Page<PizzaResponse> response = pizzaService.getAll(pageable);
     return ResponseEntity.ok(new PagedModel<>(response));
   }

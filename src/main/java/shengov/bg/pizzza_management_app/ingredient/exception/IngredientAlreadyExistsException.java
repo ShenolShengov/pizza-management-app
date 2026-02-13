@@ -8,6 +8,6 @@ import shengov.bg.pizzza_management_app.ingredient.constant.IngredientValidation
 public class IngredientAlreadyExistsException extends RuntimeException {
 
   public IngredientAlreadyExistsException(String name) {
-    super(IngredientValidationMessages.INGREDIENT_EXISTS.formatted(name));
+    super(IngredientValidationMessages.ALREADY_EXISTS.formatted(name));
   }
 }

@@ -24,7 +24,7 @@ import shengov.bg.pizzza_management_app.ingredient.repository.IngredientReposito
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaRequest;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaResponse;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaSizeRequest;
-import shengov.bg.pizzza_management_app.pizza.exception.PizzaAlreadyExistException;
+import shengov.bg.pizzza_management_app.pizza.exception.PizzaAlreadyExistsException;
 import shengov.bg.pizzza_management_app.pizza.mapper.PizzaMapper;
 import shengov.bg.pizzza_management_app.pizza.model.PizzaEntity;
 import shengov.bg.pizzza_management_app.pizza.model.PizzaSize;
@@ -105,7 +105,7 @@ class PizzaServiceImplTest {
     }
 
     @Test
-    void create_ShouldThrowPizzaAlreadyExistException_WhenNameExists() {
+    void create_ShouldThrowPizzaAlreadyExistsException_WhenNameExists() {
       IngredientEntity ingredient = createTestIngredient("Tomato");
       SizeEntity size = createTestSize("Medium");
       PizzaSizeRequest sizeRequest = new PizzaSizeRequest(size.getId(), BigDecimal.valueOf(9.99));
@@ -113,7 +113,7 @@ class PizzaServiceImplTest {
 
       when(pizzaRepository.existsByNameIgnoreCase(TEST_NAME)).thenReturn(true);
 
-      assertThrows(PizzaAlreadyExistException.class, () -> toTest.create(request));
+      assertThrows(PizzaAlreadyExistsException.class, () -> toTest.create(request));
 
       verify(pizzaRepository, never()).save(any());
     }
@@ -274,7 +274,7 @@ class PizzaServiceImplTest {
     }
 
     @Test
-    void update_ShouldThrowPizzaAlreadyExistException_WhenNewNameExists() {
+    void update_ShouldThrowPizzaAlreadyExistsException_WhenNewNameExists() {
       PizzaEntity existingPizza = createTestPizzaEntity();
       String conflictingName = "Hawaiian";
       PizzaRequest request =
@@ -289,7 +289,7 @@ class PizzaServiceImplTest {
       when(pizzaRepository.existsByNameIgnoreCase(conflictingName)).thenReturn(true);
 
       assertThrows(
-          PizzaAlreadyExistException.class, () -> toTest.update(existingPizza.getId(), request));
+          PizzaAlreadyExistsException.class, () -> toTest.update(existingPizza.getId(), request));
     }
 
     @Test

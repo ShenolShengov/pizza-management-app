@@ -30,7 +30,7 @@ public class SizeController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<SizeResponse> get(@PathVariable UUID id) {
+  public ResponseEntity<SizeResponse> getById(@PathVariable UUID id) {
     return ResponseEntity.ok(sizeService.getById(id));
   }
 
@@ -47,7 +47,7 @@ public class SizeController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<SizeResponse> delete(@PathVariable UUID id) {
+  public ResponseEntity<Void> delete(@PathVariable UUID id) {
     sizeService.delete(id);
     return ResponseEntity.noContent().build();
   }
