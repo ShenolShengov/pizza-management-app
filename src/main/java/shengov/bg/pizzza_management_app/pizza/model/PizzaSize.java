@@ -30,6 +30,7 @@ public class PizzaSize {
   private BigDecimal price;
 
   public PizzaSize(PizzaEntity pizzaEntity, SizeEntity sizeEntity, BigDecimal price) {
+    this.pizzaSizeId = new PizzaSizeId();
     this.pizza = pizzaEntity;
     this.size = sizeEntity;
     this.price = price;
