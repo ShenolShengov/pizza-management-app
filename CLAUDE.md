@@ -81,4 +81,40 @@ Test utilities in `testutils/`: `MockMvcTestUtils` (HTTP helpers), `ObjectMapper
 
 ## Git Commit Style
 
-`feat-{module}: description`, `feat: description`, `fix: description`, `chore: description`, `test-{module}: description`
+Subject line: `feat-{module}: description`, `feat: description`, `fix: description`, `chore: description`, `test-{module}: description`
+
+Every commit must also include a body with the following sections (omit any section that is not applicable):
+
+```
+feat-{module}: short description
+
+Why:
+- Reason this change was needed, problem it solves, or motivation behind it
+
+What:
+- Summary of the new code, logic, or behaviour introduced
+- Each meaningful change as a separate bullet
+
+Notes (optional):
+- Migration steps, config changes, caveats, follow-ups, or anything else useful
+```
+
+Example:
+
+```
+feat-ingredient: add Swagger UI with Keycloak OAuth2
+
+Why:
+- The API had no interactive documentation, making it hard to test endpoints manually
+
+What:
+- Added springdoc-openapi-starter-webmvc-ui 3.0.1 dependency
+- Created OpenApiConfig defining OAuth2 Authorization Code + PKCE security scheme
+- Configured Keycloak authorization/token URLs from existing issuer-uri property
+- Permitted Swagger UI paths in SecurityConfig without authentication
+- Added springdoc and oauth client-id configuration to application.yaml
+
+Notes:
+- Requires a public Keycloak client with Standard flow and the realm roles mapper
+- Valid redirect URI must be set to http://localhost:8080/swagger-ui/oauth2-redirect.html
+```
