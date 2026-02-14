@@ -24,5 +24,10 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    oauth:
+      client-id: ${SWAGGER_CLIENT_ID:swagger}
+      use-pkce-with-authorization-code-grant: true
+      additional-query-string-params:
+        prompt: login
   api-docs:
     path: /v3/api-docs
