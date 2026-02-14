@@ -20,3 +20,9 @@ spring:
           issuer-uri: http://localhost:8081/realms/${REALM_NAME}
           authorities-claim-name: roles
           authority-prefix: ROLE_
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
