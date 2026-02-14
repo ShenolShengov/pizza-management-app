@@ -82,9 +82,3 @@ Test utilities in `testutils/`: `MockMvcTestUtils` (HTTP helpers), `ObjectMapper
 ## Git Commit Style
 
 `feat-{module}: description`, `feat: description`, `fix: description`, `chore: description`, `test-{module}: description`
-
-## Known Inconsistencies
-
-- `BaseEntity` lives at `core/exception/model/` despite not being exception-related
-- Pizza module: `constants/` (plural) vs `constant/` (singular) in ingredient/size
-- Pizza controller is incomplete: create/update/delete exist in service but are not exposed as endpoints
