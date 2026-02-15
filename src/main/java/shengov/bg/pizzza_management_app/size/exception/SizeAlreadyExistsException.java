@@ -1,10 +1,11 @@
 package shengov.bg.pizzza_management_app.size.exception;
 
-import static shengov.bg.pizzza_management_app.size.constant.SizeValidationMessages.ALREADY_EXISTS;
+import shengov.bg.pizzza_management_app.core.exception.ConflictException;
+import shengov.bg.pizzza_management_app.size.constant.SizeValidationMessages;
 
-public class SizeAlreadyExistsException extends RuntimeException {
+public class SizeAlreadyExistsException extends ConflictException {
 
   public SizeAlreadyExistsException(String name) {
-    super(ALREADY_EXISTS.formatted(name));
+    super(SizeValidationMessages.ALREADY_EXISTS.formatted(name));
   }
 }
