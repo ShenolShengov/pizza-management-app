@@ -22,11 +22,12 @@ public record ApiError(
         String path,
     @Schema(
             description = "Field-level validation errors, present only on 400 responses",
-            example = "{\"name\": \"Name is required\"}")
-        Map<String, String> errors) {
+            example =
+                "{\"name\": [\"Name is required\", \"Name must be between 2 and 50 characters\"]}")
+        Map<String, String[]> errors) {
 
   public static ApiError from(
-      String message, HttpStatus status, HttpServletRequest request, Map<String, String> errors) {
+      String message, HttpStatus status, HttpServletRequest request, Map<String, String[]> errors) {
     return new ApiError(
         Instant.now(),
         status.value(),
