@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.hibernate.JDBCException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,16 +19,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import shengov.bg.pizzza_management_app.core.exception.ApiError;
-import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
+import shengov.bg.pizzza_management_app.core.exception.ApiException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(ResourceNotFoundException.class)
-  public ResponseEntity<ApiError> handleResourceNotFoundException(
-      ResourceNotFoundException ex, HttpServletRequest request) {
-    HttpStatus status = HttpStatus.NOT_FOUND;
-    return ResponseEntity.status(status).body(ApiError.from(ex.getMessage(), status, request));
+  @ExceptionHandler(ApiException.class)
+  public ResponseEntity<ApiError> handleApiException(ApiException ex, HttpServletRequest request) {
+    HttpStatusCode statusCode = ex.getStatusCode();
+    HttpStatus status = HttpStatus.resolve(statusCode.value());
+    return ResponseEntity.status(statusCode).body(ApiError.from(ex.getMessage(), status, request));
   }
 
   @ExceptionHandler(AccessDeniedException.class)
