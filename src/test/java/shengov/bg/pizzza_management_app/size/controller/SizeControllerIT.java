@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static shengov.bg.pizzza_management_app.testutils.SizeTestUtils.createTestSizeRequest;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,10 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import shengov.bg.pizzza_management_app.config.BaseIntegrationTest;
+import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.size.dto.SizeRequest;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.size.repository.SizeRepository;
 import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
+import shengov.bg.pizzza_management_app.testutils.PizzaTestUtils;
 import shengov.bg.pizzza_management_app.testutils.SizeTestUtils;
 
 @DisplayName("Size controller integration tests")
@@ -30,6 +34,7 @@ class SizeControllerIT extends BaseIntegrationTest {
   @Autowired private MockMvcTestUtils mockMvcTestUtils;
   @Autowired private SizeRepository sizeRepository;
   @Autowired private SizeTestUtils sizeTestUtils;
+  @Autowired private PizzaTestUtils pizzaTestUtils;
 
   private static final String SIZE_ENDPOINT = "/api/sizes";
   private static final String SIZE_BY_ID_ENDPOINT = "/api/sizes/%s";
@@ -264,6 +269,22 @@ class SizeControllerIT extends BaseIntegrationTest {
       mockMvcTestUtils
           .performDelete(SIZE_BY_ID_ENDPOINT.formatted(UUID.randomUUID()))
           .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    @DisplayName("DELETE /api/sizes/{id} -> 409 when size is used by a pizza")
+    void delete_ShouldReturnConflict_WhenSizeIsUsedByPizza() throws Exception {
+      SizeEntity size = sizeTestUtils.saveTestSize(createTestSizeRequest(TEST_NAME));
+      IngredientEntity ingredient = pizzaTestUtils.saveIngredient("Cheese");
+      pizzaTestUtils.savePizza(
+          "Margherita", List.of(ingredient), List.of(size), List.of(BigDecimal.TEN));
+
+      mockMvcTestUtils
+          .performDelete(SIZE_BY_ID_ENDPOINT.formatted(size.getId()))
+          .andExpect(status().isConflict())
+          .andExpect(jsonPath("$.status", equalTo(409)))
+          .andExpect(jsonPath("$.error", equalTo("Conflict")));
     }
 
     @Test

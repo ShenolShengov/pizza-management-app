@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static shengov.bg.pizzza_management_app.testutils.IngredientTestUtils.createTestIngredientRequest;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,8 +22,10 @@ import shengov.bg.pizzza_management_app.config.BaseIntegrationTest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
+import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.testutils.IngredientTestUtils;
 import shengov.bg.pizzza_management_app.testutils.MockMvcTestUtils;
+import shengov.bg.pizzza_management_app.testutils.PizzaTestUtils;
 
 @DisplayName("Ingredient controller integration tests")
 class IngredientControllerIT extends BaseIntegrationTest {
@@ -30,6 +34,7 @@ class IngredientControllerIT extends BaseIntegrationTest {
   @Autowired private MockMvcTestUtils mockMvcTestUtils;
   @Autowired private IngredientRepository ingredientRepository;
   @Autowired private IngredientTestUtils ingredientTestUtils;
+  @Autowired private PizzaTestUtils pizzaTestUtils;
 
   private static final String INGREDIENT_ENDPOINT = "/api/ingredients";
   private static final String INGREDIENT_BY_ID_ENDPOINT = "/api/ingredients/%s";
@@ -274,7 +279,24 @@ class IngredientControllerIT extends BaseIntegrationTest {
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    @DisplayName("DELETE api/ingredients/{id} -> 404 when ingredient is not found")
+    @DisplayName("DELETE api/ingredients/{id} -> 409 when ingredient is used by a pizza")
+    void delete_ShouldReturnConflict_WhenIngredientIsUsedByPizza() throws Exception {
+      IngredientEntity ingredient =
+          ingredientTestUtils.saveTestIngredient(createTestIngredientRequest(TEST_NAME));
+      SizeEntity size = pizzaTestUtils.saveSize("Large");
+      pizzaTestUtils.savePizza(
+          "Margherita", List.of(ingredient), List.of(size), List.of(BigDecimal.TEN));
+
+      mockMvcTestUtils
+          .performDelete(INGREDIENT_BY_ID_ENDPOINT.formatted(ingredient.getId()))
+          .andExpect(status().isConflict())
+          .andExpect(jsonPath("$.status", equalTo(409)))
+          .andExpect(jsonPath("$.error", equalTo("Conflict")));
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    @DisplayName("DELETE api/ingredients/{id} -> 204 when ingredient deleted successfully")
     void delete_ShouldDelete_WhenExist() throws Exception {
       IngredientRequest request = createTestIngredientRequest(TEST_NAME);
       IngredientEntity ingredient = ingredientTestUtils.saveTestIngredient(request);
