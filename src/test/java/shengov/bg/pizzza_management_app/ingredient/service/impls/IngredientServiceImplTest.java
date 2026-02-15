@@ -20,6 +20,7 @@ import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
+import shengov.bg.pizzza_management_app.ingredient.mapper.IngredientMapper;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 
@@ -29,6 +30,7 @@ class IngredientServiceImplTest {
   private final String TEST_NAME = "Tomato";
 
   @Mock private IngredientRepository ingredientRepository;
+  @Mock private IngredientMapper mapper;
 
   @InjectMocks private IngredientServiceImpl toTest;
 
@@ -53,8 +55,12 @@ class IngredientServiceImplTest {
     IngredientEntity savedIngredient = createTestIngredient();
     IngredientRequest request = createTestIngredientRequest();
 
+    IngredientResponse expectedResponse =
+        new IngredientResponse(savedIngredient.getId(), savedIngredient.getName());
     when(ingredientRepository.existsByNameIgnoreCase(savedIngredient.getName())).thenReturn(false);
+    when(mapper.requestToEntity(request)).thenReturn(savedIngredient);
     when(ingredientRepository.save(any(IngredientEntity.class))).thenReturn(savedIngredient);
+    when(mapper.entityToResponse(savedIngredient)).thenReturn(expectedResponse);
 
     IngredientResponse response = toTest.create(request);
 
@@ -96,7 +102,10 @@ class IngredientServiceImplTest {
 
     IngredientEntity ingredient = createTestIngredient();
 
+    IngredientResponse expectedResponse =
+        new IngredientResponse(ingredient.getId(), ingredient.getName());
     when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
+    when(mapper.entityToResponse(ingredient)).thenReturn(expectedResponse);
 
     IngredientResponse response = toTest.getById(ingredient.getId());
 
@@ -114,6 +123,12 @@ class IngredientServiceImplTest {
 
     when(ingredientRepository.findAll(any(Pageable.class)))
         .thenReturn(new PageImpl<>(testIngredients));
+    when(mapper.entityToResponse(any(IngredientEntity.class)))
+        .thenAnswer(
+            inv -> {
+              IngredientEntity e = inv.getArgument(0);
+              return new IngredientResponse(e.getId(), e.getName());
+            });
 
     Page<IngredientResponse> all = toTest.getAll(Pageable.unpaged());
 
@@ -137,6 +152,12 @@ class IngredientServiceImplTest {
     IngredientRequest request = createTestIngredientRequest();
     when(ingredientRepository.findById(ingredientToUpdate.getId()))
         .thenReturn(Optional.of(ingredientToUpdate));
+    when(mapper.entityToResponse(ingredientToUpdate))
+        .thenAnswer(
+            inv -> {
+              IngredientEntity e = inv.getArgument(0);
+              return new IngredientResponse(e.getId(), e.getName());
+            });
 
     IngredientResponse response = toTest.update(ingredientToUpdate.getId(), request);
 
