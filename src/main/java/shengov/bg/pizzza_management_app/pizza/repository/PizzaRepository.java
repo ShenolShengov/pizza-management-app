@@ -9,6 +9,10 @@ import shengov.bg.pizzza_management_app.pizza.model.PizzaEntity;
 public interface PizzaRepository extends JpaRepository<PizzaEntity, UUID> {
   boolean existsByNameIgnoreCase(String name);
 
+  boolean existsByIngredientsId(UUID ingredientId);
+
+  boolean existsBySizesSizeId(UUID sizeId);
+
   @EntityGraph(attributePaths = {"ingredients", "sizes"})
   Optional<PizzaEntity> findWithDetailsById(UUID id);
 }

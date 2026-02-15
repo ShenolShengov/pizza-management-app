@@ -8,6 +8,9 @@ public final class SizeValidationMessages {
 
   public static final String ALREADY_EXISTS = "Size with name '%s' already exists";
 
+  public static final String IN_USE =
+      "Size with id '%s' is used by one or more pizzas and cannot be deleted";
+
   public static final String NAME_REQUIRED = "Size name is required";
 
   public static final String NAME_SIZE = "Size name must be between 1 and 15 characters";

@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
+import shengov.bg.pizzza_management_app.pizza.repository.PizzaRepository;
 import shengov.bg.pizzza_management_app.size.dto.SizeRequest;
 import shengov.bg.pizzza_management_app.size.dto.SizeResponse;
 import shengov.bg.pizzza_management_app.size.exception.SizeAlreadyExistsException;
+import shengov.bg.pizzza_management_app.size.exception.SizeInUseException;
 import shengov.bg.pizzza_management_app.size.mapper.SizeMapper;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.size.repository.SizeRepository;
@@ -20,6 +22,7 @@ import shengov.bg.pizzza_management_app.size.service.SizeService;
 public class SizeServiceImpl implements SizeService {
 
   private final SizeRepository sizeRepository;
+  private final PizzaRepository pizzaRepository;
   private final SizeMapper sizeMapper;
 
   @Override
@@ -42,6 +45,9 @@ public class SizeServiceImpl implements SizeService {
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   public void delete(UUID id) {
+    if (pizzaRepository.existsBySizesSizeId(id)) {
+      throw new SizeInUseException(id);
+    }
     SizeEntity toDelete = byId(id);
     sizeRepository.delete(toDelete);
   }

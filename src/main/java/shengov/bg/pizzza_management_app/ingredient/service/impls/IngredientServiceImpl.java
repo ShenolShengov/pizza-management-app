@@ -11,10 +11,12 @@ import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
+import shengov.bg.pizzza_management_app.ingredient.exception.IngredientInUseException;
 import shengov.bg.pizzza_management_app.ingredient.mapper.IngredientMapper;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
 import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
+import shengov.bg.pizzza_management_app.pizza.repository.PizzaRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ import shengov.bg.pizzza_management_app.ingredient.service.IngredientService;
 public class IngredientServiceImpl implements IngredientService {
 
   private final IngredientRepository ingredientRepository;
+  private final PizzaRepository pizzaRepository;
   private final IngredientMapper mapper;
 
   @Override
@@ -45,6 +48,9 @@ public class IngredientServiceImpl implements IngredientService {
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   public void delete(UUID id) {
+    if (pizzaRepository.existsByIngredientsId(id)) {
+      throw new IngredientInUseException(id);
+    }
     ingredientRepository.delete(byId(id));
   }
 
