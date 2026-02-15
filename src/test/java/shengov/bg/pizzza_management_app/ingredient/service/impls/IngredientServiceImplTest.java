@@ -20,9 +20,11 @@ import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientRequest;
 import shengov.bg.pizzza_management_app.ingredient.dto.IngredientResponse;
 import shengov.bg.pizzza_management_app.ingredient.exception.IngredientAlreadyExistsException;
+import shengov.bg.pizzza_management_app.ingredient.exception.IngredientInUseException;
 import shengov.bg.pizzza_management_app.ingredient.mapper.IngredientMapper;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
+import shengov.bg.pizzza_management_app.pizza.repository.PizzaRepository;
 
 @ExtendWith(MockitoExtension.class)
 class IngredientServiceImplTest {
@@ -30,6 +32,7 @@ class IngredientServiceImplTest {
   private final String TEST_NAME = "Tomato";
 
   @Mock private IngredientRepository ingredientRepository;
+  @Mock private PizzaRepository pizzaRepository;
   @Mock private IngredientMapper mapper;
 
   @InjectMocks private IngredientServiceImpl toTest;
@@ -168,6 +171,7 @@ class IngredientServiceImplTest {
   @Test
   void delete_ShouldThrow_WhenIngredientNotExist() {
     UUID notExistId = UUID.randomUUID();
+    when(pizzaRepository.existsByIngredientsId(notExistId)).thenReturn(false);
     when(ingredientRepository.findById(notExistId)).thenReturn(Optional.empty());
 
     assertThrows(ResourceNotFoundException.class, () -> toTest.delete(notExistId));
@@ -176,8 +180,19 @@ class IngredientServiceImplTest {
   }
 
   @Test
+  void delete_ShouldThrow_WhenIngredientIsUsedByPizza() {
+    IngredientEntity ingredient = createTestIngredient();
+    when(pizzaRepository.existsByIngredientsId(ingredient.getId())).thenReturn(true);
+
+    assertThrows(IngredientInUseException.class, () -> toTest.delete(ingredient.getId()));
+
+    verify(ingredientRepository, never()).delete(any(IngredientEntity.class));
+  }
+
+  @Test
   void delete_ShouldDelete_WhenIngredientExist() {
     IngredientEntity ingredient = createTestIngredient();
+    when(pizzaRepository.existsByIngredientsId(ingredient.getId())).thenReturn(false);
     when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
 
     toTest.delete(ingredient.getId());

@@ -17,9 +17,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException;
+import shengov.bg.pizzza_management_app.pizza.repository.PizzaRepository;
 import shengov.bg.pizzza_management_app.size.dto.SizeRequest;
 import shengov.bg.pizzza_management_app.size.dto.SizeResponse;
 import shengov.bg.pizzza_management_app.size.exception.SizeAlreadyExistsException;
+import shengov.bg.pizzza_management_app.size.exception.SizeInUseException;
 import shengov.bg.pizzza_management_app.size.mapper.SizeMapper;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.size.repository.SizeRepository;
@@ -30,6 +32,7 @@ class SizeServiceImplTest {
   private static final String TEST_NAME = "Large";
 
   @Mock private SizeRepository sizeRepository;
+  @Mock private PizzaRepository pizzaRepository;
   @Mock private SizeMapper sizeMapper;
 
   @InjectMocks private SizeServiceImpl toTest;
@@ -180,6 +183,7 @@ class SizeServiceImplTest {
   @Test
   void delete_ShouldThrow_WhenSizeNotExist() {
     UUID notExistId = UUID.randomUUID();
+    when(pizzaRepository.existsBySizesSizeId(notExistId)).thenReturn(false);
     when(sizeRepository.findById(notExistId)).thenReturn(Optional.empty());
 
     assertThrows(ResourceNotFoundException.class, () -> toTest.delete(notExistId));
@@ -188,8 +192,19 @@ class SizeServiceImplTest {
   }
 
   @Test
+  void delete_ShouldThrow_WhenSizeIsUsedByPizza() {
+    SizeEntity size = createTestSize();
+    when(pizzaRepository.existsBySizesSizeId(size.getId())).thenReturn(true);
+
+    assertThrows(SizeInUseException.class, () -> toTest.delete(size.getId()));
+
+    verify(sizeRepository, never()).delete(any(SizeEntity.class));
+  }
+
+  @Test
   void delete_ShouldDelete_WhenSizeExists() {
     SizeEntity size = createTestSize();
+    when(pizzaRepository.existsBySizesSizeId(size.getId())).thenReturn(false);
     when(sizeRepository.findById(size.getId())).thenReturn(Optional.of(size));
 
     toTest.delete(size.getId());
