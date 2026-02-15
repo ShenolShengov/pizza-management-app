@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 import org.hibernate.JDBCException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,9 +25,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(ApiException.class)
   public ResponseEntity<ApiError> handleApiException(ApiException ex, HttpServletRequest request) {
-    HttpStatusCode statusCode = ex.getStatusCode();
-    HttpStatus status = HttpStatus.resolve(statusCode.value());
-    return ResponseEntity.status(statusCode).body(ApiError.from(ex.getMessage(), status, request));
+    HttpStatus status = ex.getStatus();
+    return ResponseEntity.status(status).body(ApiError.from(ex.getMessage(), status, request));
   }
 
   @ExceptionHandler(AccessDeniedException.class)

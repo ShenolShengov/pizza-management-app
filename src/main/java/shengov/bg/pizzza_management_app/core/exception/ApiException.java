@@ -1,17 +1,17 @@
 package shengov.bg.pizzza_management_app.core.exception;
 
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 
 public class ApiException extends RuntimeException {
 
-  private final HttpStatusCode statusCode;
+  private final HttpStatus status;
 
-  public ApiException(HttpStatusCode statusCode, String message) {
+  public ApiException(HttpStatus status, String message) {
     super(message);
-    this.statusCode = statusCode;
+    this.status = status;
   }
 
-  public HttpStatusCode getStatusCode() {
-    return statusCode;
+  public HttpStatus getStatus() {
+    return status;
   }
 }
