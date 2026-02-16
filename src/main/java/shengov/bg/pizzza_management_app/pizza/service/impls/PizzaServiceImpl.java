@@ -12,6 +12,7 @@ import shengov.bg.pizzza_management_app.core.exception.ResourceNotFoundException
 import shengov.bg.pizzza_management_app.core.model.BaseEntity;
 import shengov.bg.pizzza_management_app.ingredient.model.IngredientEntity;
 import shengov.bg.pizzza_management_app.ingredient.repository.IngredientRepository;
+import shengov.bg.pizzza_management_app.pizza.dto.PizzaFilterInput;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaRequest;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaResponse;
 import shengov.bg.pizzza_management_app.pizza.dto.PizzaSizeRequest;
@@ -20,6 +21,7 @@ import shengov.bg.pizzza_management_app.pizza.mapper.PizzaMapper;
 import shengov.bg.pizzza_management_app.pizza.model.PizzaEntity;
 import shengov.bg.pizzza_management_app.pizza.model.PizzaSize;
 import shengov.bg.pizzza_management_app.pizza.repository.PizzaRepository;
+import shengov.bg.pizzza_management_app.pizza.repository.PizzaSpecification;
 import shengov.bg.pizzza_management_app.pizza.service.PizzaService;
 import shengov.bg.pizzza_management_app.size.model.SizeEntity;
 import shengov.bg.pizzza_management_app.size.repository.SizeRepository;
@@ -82,6 +84,13 @@ public class PizzaServiceImpl implements PizzaService {
   @Override
   public Page<PizzaResponse> getAll(Pageable pageable) {
     return pizzaRepository.findAll(pageable).map(pizzaMapper::entityToResponse);
+  }
+
+  @Override
+  public Page<PizzaResponse> getAll(PizzaFilterInput filter, Pageable pageable) {
+    return pizzaRepository
+        .findAll(PizzaSpecification.from(filter), pageable)
+        .map(pizzaMapper::entityToResponse);
   }
 
   private PizzaEntity byId(UUID id) {
