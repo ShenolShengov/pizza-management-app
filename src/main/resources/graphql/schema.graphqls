@@ -1,0 +1,40 @@
+type Query {
+  pizzas(filter: PizzaFilterInput, page: Int = 0, size: Int = 10): PizzaPage!
+  pizza(id: ID!): Pizza
+}
+
+input PizzaFilterInput {
+  name: String
+  description: String
+  ingredientNames: [String!]
+  sizeName: String
+  minPrice: Float
+  maxPrice: Float
+}
+
+type PizzaPage {
+  content: [Pizza!]!
+  totalElements: Int!
+  totalPages: Int!
+  page: Int!
+  size: Int!
+}
+
+type Pizza {
+  id: ID!
+  name: String!
+  description: String
+  ingredients: [Ingredient!]!
+  sizes: [PizzaSize!]!
+}
+
+type Ingredient {
+  id: ID!
+  name: String!
+}
+
+type PizzaSize {
+  id: ID!
+  name: String!
+  price: Float!
+}
