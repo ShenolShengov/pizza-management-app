@@ -1,6 +1,8 @@
 package shengov.bg.pizzza_management_app.pizza.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
@@ -38,16 +41,13 @@ class PizzaGraphQlControllerIT extends BaseIntegrationTest {
 
     @Test
     @DisplayName("pizzas -> 401 when user is not authenticated")
-    void pizzas_ShouldReturnUnauthorized_WhenNotAuthenticated() {
-      graphQlTester
-          .document("{ pizzas { content { id name } totalElements } }")
-          .execute()
-          .errors()
-          .satisfy(
-              errors ->
-                  assertThat(errors)
-                      .anyMatch(
-                          e -> e.getMessage() != null && e.getMessage().contains("Unauthorized")));
+    void pizzas_ShouldReturnUnauthorized_WhenNotAuthenticated() throws Exception {
+      mockMvc
+          .perform(
+              post("/graphql")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"query\":\"{ pizzas { content { id } } }\"}"))
+          .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -196,26 +196,14 @@ class PizzaGraphQlControllerIT extends BaseIntegrationTest {
 
     @Test
     @DisplayName("pizza -> 401 when user is not authenticated")
-    void pizza_ShouldReturnUnauthorized_WhenNotAuthenticated() {
-      IngredientEntity ingredient = pizzaTestUtils.saveIngredient("Tomato");
-      SizeEntity size = pizzaTestUtils.saveSize("Medium");
-      PizzaEntity pizza =
-          pizzaTestUtils.savePizza(
-              "Margherita", List.of(ingredient), List.of(size), List.of(BigDecimal.valueOf(9.99)));
-
-      graphQlTester
-          .document(
-              """
-              { pizza(id: "%s") { id name } }
-              """
-                  .formatted(pizza.getId()))
-          .execute()
-          .errors()
-          .satisfy(
-              errors ->
-                  assertThat(errors)
-                      .anyMatch(
-                          e -> e.getMessage() != null && e.getMessage().contains("Unauthorized")));
+    void pizza_ShouldReturnUnauthorized_WhenNotAuthenticated() throws Exception {
+      mockMvc
+          .perform(
+              post("/graphql")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      "{\"query\":\"{ pizza(id: \\\"00000000-0000-0000-0000-000000000000\\\") { id } }\"}"))
+          .andExpect(status().isUnauthorized());
     }
 
     @Test

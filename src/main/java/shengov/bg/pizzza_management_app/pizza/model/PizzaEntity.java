@@ -38,6 +38,10 @@ public class PizzaEntity extends BaseEntity {
   @BatchSize(size = 20)
   private Set<PizzaSize> sizes;
 
+  public Set<IngredientEntity> getIngredients() {
+    return Collections.unmodifiableSet(ingredients);
+  }
+
   public void addIngredients(Collection<IngredientEntity> ingredients) {
     this.ingredients.addAll(ingredients);
   }
