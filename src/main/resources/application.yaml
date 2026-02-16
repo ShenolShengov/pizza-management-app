@@ -21,6 +21,10 @@ spring:
           authorities-claim-name: roles
           authority-prefix: ROLE_
 
+  graphql:
+    graphiql:
+      enabled: true
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
